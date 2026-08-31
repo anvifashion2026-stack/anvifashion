@@ -1,0 +1,5 @@
+name = "venkey"
+compatibility_date = "2026-08-28"
+
+[assets]
+directory = "./public"   # folder containing your index.html
