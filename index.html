@@ -1256,19 +1256,6 @@ renderFilters();
 renderCart();
 loadProducts();
 </script>
-<button id="scrollProgressBtn" type="button" aria-label="Back to top" title="Back to top">
-  <svg viewBox="0 0 54 54" aria-hidden="true"><circle class="track" cx="27" cy="27" r="24"></circle><circle class="progress" cx="27" cy="27" r="24"></circle></svg>
-  <svg class="up-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"></path></svg>
-</button>
-<script>
-(function(){
- const btn=document.getElementById('scrollProgressBtn'); if(!btn) return;
- const ring=btn.querySelector('.progress'); const radius=24; const circumference=2*Math.PI*radius;
- ring.style.strokeDasharray=circumference+' '+circumference; ring.style.strokeDashoffset=circumference;
- function update(){const doc=document.documentElement; const max=doc.scrollHeight-doc.clientHeight; const y=window.scrollY||doc.scrollTop||0; const pct=max>0?Math.min(1,Math.max(0,y/max)):0; ring.style.strokeDashoffset=(circumference*(1-pct)).toFixed(2); btn.classList.toggle('show',y>120);}
- btn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'})); window.addEventListener('scroll',update,{passive:true}); window.addEventListener('resize',update); update();
-})();
-</script>
 <!-- ANVI Telegram Floating Chat Button -->
 <a
   href="https://t.me/anvifjcsbot"
@@ -1285,7 +1272,6 @@ loadProducts();
   />
   <span class="anvi-telegram-text">Chat with ANVI</span>
 </a>
-
 <style>
   .anvi-telegram-chat {
     position: fixed;
@@ -1348,5 +1334,19 @@ loadProducts();
     }
   }
 </style>
+<!-- Circular Scroll progress/Back to top Button -->
+<button id="scrollProgressBtn" type="button" aria-label="Back to top" title="Back to top">
+  <svg viewBox="0 0 54 54" aria-hidden="true"><circle class="track" cx="27" cy="27" r="24"></circle><circle class="progress" cx="27" cy="27" r="24"></circle></svg>
+  <svg class="up-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"></path></svg>
+</button>
+<script>
+(function(){
+ const btn=document.getElementById('scrollProgressBtn'); if(!btn) return;
+ const ring=btn.querySelector('.progress'); const radius=24; const circumference=2*Math.PI*radius;
+ ring.style.strokeDasharray=circumference+' '+circumference; ring.style.strokeDashoffset=circumference;
+ function update(){const doc=document.documentElement; const max=doc.scrollHeight-doc.clientHeight; const y=window.scrollY||doc.scrollTop||0; const pct=max>0?Math.min(1,Math.max(0,y/max)):0; ring.style.strokeDashoffset=(circumference*(1-pct)).toFixed(2); btn.classList.toggle('show',y>120);}
+ btn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'})); window.addEventListener('scroll',update,{passive:true}); window.addEventListener('resize',update); update();
+})();
+</script>
 </body>
 </html>
