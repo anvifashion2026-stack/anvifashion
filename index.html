@@ -1269,5 +1269,78 @@ loadProducts();
  btn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'})); window.addEventListener('scroll',update,{passive:true}); window.addEventListener('resize',update); update();
 })();
 </script>
+<!-- ANVI Telegram Floating Chat Button -->
+<a
+  href="https://t.me/anvifjcsbot"
+  target="_blank"
+  rel="noopener noreferrer"
+  class="anvi-telegram-chat"
+  aria-label="Chat with ANVI on Telegram"
+  title="Chat with ANVI on Telegram"
+>
+  <span class="anvi-telegram-icon">✈</span>
+  <span class="anvi-telegram-text">Chat with ANVI</span>
+</a>
+
+<style>
+  .anvi-telegram-chat {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    z-index: 99999;
+
+    display: flex;
+    align-items: center;
+    gap: 9px;
+
+    padding: 12px 18px;
+    border-radius: 50px;
+
+    background: #229ED9;
+    color: #ffffff;
+
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.20);
+
+    transition: transform 0.2s ease,
+                box-shadow 0.2s ease;
+  }
+
+  .anvi-telegram-chat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.25);
+  }
+
+  .anvi-telegram-icon {
+    font-size: 20px;
+    line-height: 1;
+  }
+
+  @media (max-width: 600px) {
+    .anvi-telegram-chat {
+      right: 15px;
+      bottom: 15px;
+
+      width: 52px;
+      height: 52px;
+      padding: 0;
+
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .anvi-telegram-text {
+      display: none;
+    }
+
+    .anvi-telegram-icon {
+      font-size: 23px;
+    }
+  }
+</style>
 </body>
 </html>
