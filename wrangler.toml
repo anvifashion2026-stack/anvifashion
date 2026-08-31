@@ -2,4 +2,4 @@ name = "venkey"
 compatibility_date = "2026-08-28"
 
 [assets]
-directory = "."   # folder containing your index.html
+directory = "."
