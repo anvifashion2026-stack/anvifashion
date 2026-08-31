@@ -1278,7 +1278,11 @@ loadProducts();
   aria-label="Chat with ANVI on Telegram"
   title="Chat with ANVI on Telegram"
 >
-  <span class="anvi-telegram-icon">✈</span>
+  <img
+    src="https://telegram.org/img/t_logo.svg"
+    alt="Telegram"
+    class="anvi-telegram-icon"
+  />
   <span class="anvi-telegram-text">Chat with ANVI</span>
 </a>
 
@@ -1316,29 +1320,31 @@ loadProducts();
   }
 
   .anvi-telegram-icon {
-    font-size: 20px;
-    line-height: 1;
+    width: 22px;
+    height: 22px;
+    display: block;
   }
 
   @media (max-width: 600px) {
     .anvi-telegram-chat {
       right: 15px;
-      bottom: 15px;
-
+      bottom: 80px;
+  
       width: 52px;
       height: 52px;
       padding: 0;
-
+  
       justify-content: center;
       border-radius: 50%;
     }
-
+  
     .anvi-telegram-text {
       display: none;
     }
-
+  
     .anvi-telegram-icon {
-      font-size: 23px;
+      width: 27px;
+      height: 27px;
     }
   }
 </style>
