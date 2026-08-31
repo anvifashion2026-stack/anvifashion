@@ -1,0 +1,12 @@
+ANVI CONTACT FORM SETUP
+
+1. Open the target Google Sheet:
+   https://docs.google.com/spreadsheets/d/1GMZ3wRnzdSiE1r9qX--i6_VcRx9CXOjgah13YBu5MaA/edit
+2. Extensions -> Apps Script.
+3. Paste ANVI_Contact_Form_Code.gs and save.
+4. Deploy -> New deployment -> Web app. Execute as Me; Who has access: Anyone.
+5. Copy the /exec URL.
+6. In index.html, set CONFIG.CONTACT_FORM_ENDPOINT to that URL.
+
+The form stores Timestamp, Name, Mobile Number, Message and Page URL.
+The website displays the requested thank-you popup after the submission request is sent.
