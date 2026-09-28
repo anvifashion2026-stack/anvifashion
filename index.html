@@ -1338,14 +1338,71 @@ loadProducts();
   <svg viewBox="0 0 54 54" aria-hidden="true"><circle class="track" cx="27" cy="27" r="24"></circle><circle class="progress" cx="27" cy="27" r="24"></circle></svg>
   <svg class="up-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"></path></svg>
 </button>
-<script>
-(function(){
- const btn=document.getElementById('scrollProgressBtn'); if(!btn) return;
- const ring=btn.querySelector('.progress'); const radius=24; const circumference=2*Math.PI*radius;
- ring.style.strokeDasharray=circumference+' '+circumference; ring.style.strokeDashoffset=circumference;
- function update(){const doc=document.documentElement; const max=doc.scrollHeight-doc.clientHeight; const y=window.scrollY||doc.scrollTop||0; const pct=max>0?Math.min(1,Math.max(0,y/max)):0; ring.style.strokeDashoffset=(circumference*(1-pct)).toFixed(2); btn.classList.toggle('show',y>120);}
- btn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'})); window.addEventListener('scroll',update,{passive:true}); window.addEventListener('resize',update); update();
-})();
-</script>
+
+<!-- ANVI WhatsApp Floating Chat Button -->
+<style>
+#anviWhatsAppBtn {
+  position: fixed;
+  right: 20px;
+  bottom: 18px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25D366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(0,0,0,.22);
+  z-index: 9999;
+  transition: transform .25s ease,
+              box-shadow .25s ease;
+  text-decoration: none;
+}
+
+#anviWhatsAppBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(0,0,0,.28);
+}
+
+#anviWhatsAppBtn img {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+#anviWhatsAppBtn:focus-visible {
+  outline: 3px solid #128C7E;
+  outline-offset: 4px;
+}
+
+@media (max-width: 600px) {
+  #anviWhatsAppBtn {
+    right: 16px;
+    bottom: 16px;
+    width: 54px;
+    height: 54px;
+  }
+
+  #anviWhatsAppBtn img {
+    width: 32px;
+    height: 32px;
+  }
+}
+</style>
+
+<a
+  id="anviWhatsAppBtn"
+  href="https://wa.me/919585511457?text=Hi%20ANVI%2C%20I%20need%20help%20with%20your%20jewellery."
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Chat with ANVI on WhatsApp"
+  title="Chat with ANVI on WhatsApp"
+>
+  <img
+    src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+    alt="WhatsApp"
+  />
+</a>
+<!-- End ANVI WhatsApp Floating Chat Button -->
 </body>
 </html>
