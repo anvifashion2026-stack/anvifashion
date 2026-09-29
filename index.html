@@ -1069,7 +1069,13 @@ function renderFilters(){
     row.appendChild(btn);
   });
 }
-
+const productSearchInput = document.getElementById("productSearch");
+if(productSearchInput){
+  productSearchInput.addEventListener("input", () => {
+    PRODUCT_SEARCH_TERM = productSearchInput.value.trim().toLowerCase();
+    renderProducts();
+  });
+}
 function renderProducts(){
   const grid = document.getElementById("productGrid");
   const categoryProducts = ACTIVE_CATEGORY === "All"
