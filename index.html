@@ -918,22 +918,29 @@ async function loadProducts(){
       if(index < 0) index = cols.findIndex(h => keys.some(k => k.length > 2 && h.includes(k)));
       return index;
     };
-    const idx = {
-      id: find(["id", "barcode", "sku"]),
-      title: find(["title", "product name", "item name", "name", "product"]),
-      description: find(["description", "sales description", "product description", "details"]),
-      availability: find(["availability", "stock status", "stockstatus"]),
-      quantity: find(["quantity_to_sell_on_facebook", "stock qty", "stock quantity", "quantity", "qty", "available qty"]),
-      price: find(["price", "selling price", "sale price", "sellingpriceinr", "price inr", "rate", "mrp", "amount"]),
-      // Category must be checked before item_group_id: that field is a grouping ID, not a product category.
-      category: find(["category", "google_product_category", "product category", "product type", "collection", "item group id", "type"]),
-      image: find(["image link", "image url", "main image", "product image", "image"]),
-      condition: find(["condition"]),
-      googleCategory: find(["google_product_category", "google category"]),
-      brand: find(["brand", "org name"]),
-      gender: find(["gender"]),
-      color: find(["color"])
-    };
+const idx = {
+  id: find(["id", "barcode", "sku"]),
+  title: find(["title", "product name", "item name", "name", "product"]),
+  description: find(["description", "sales description", "product description", "details"]),
+  availability: find(["availability", "stock status", "stockstatus"]),
+  quantity: find(["quantity_to_sell_on_facebook", "stock qty", "stock quantity", "quantity", "qty", "available qty"]),
+  price: find(["price", "selling price", "sale price", "sellingpriceinr", "price inr", "rate", "mrp", "amount"]),
+
+  // IMPORTANT:
+  // Product category comes ONLY from google_product_category.
+  googleCategory: find(["google_product_category"]),
+
+  image: find(["image link", "image url", "main image", "product image", "image"]),
+  condition: find(["condition"]),
+  brand: find(["brand", "org name"]),
+  gender: find(["gender"]),
+  color: find(["color"])
+};
+if(idx.googleCategory < 0) {
+  throw new Error(
+    `No google_product_category column found. Headers detected: ${cols.join(", ")}`
+  );
+}
 
     if(idx.title < 0) throw new Error(`No Product Name/Title column found. Headers detected: ${cols.join(", ")}`);
     if(idx.price < 0) throw new Error(`No Price/Selling Price column found. Headers detected: ${cols.join(", ")}`);
@@ -953,25 +960,36 @@ async function loadProducts(){
     const sheetProducts = dataRows.map((row, i) => {
       const title = String(cell(row, idx.title) ?? "").trim();
       const price = parsePrice(cell(row, idx.price));
-      const rawCategory = cell(row, idx.category);
-      const category = normalizeCategory(rawCategory);
-      const googleCategory = String(cell(row, idx.googleCategory) || "").trim();
+	const googleCategory = normalizeCategory(cell(row, idx.googleCategory));
+	const category = googleCategory;
       const image = cleanImageUrl(cell(row, idx.image));
       const availability = String(cell(row, idx.availability) ?? "").trim().toLowerCase();
       const quantityRaw = String(cell(row, idx.quantity) ?? "").replace(/,/g, "").trim();
       const quantity = quantityRaw === "" ? null : Number(quantityRaw);
       const explicitlyOut = ["out of stock", "unavailable", "sold out", "outofstock"].includes(availability)
         || (quantity !== null && !Number.isNaN(quantity) && quantity <= 0);
-      return {
-        id: String(cell(row, idx.id) || `g${i}`), title,
-        description: String(cell(row, idx.description) || ""), price,
-        category: googleCategory, image, availability,
-        condition: String(cell(row, idx.condition) || "new"),
-        brand: String(cell(row, idx.brand) || "ANVI"),
-        gender: String(cell(row, idx.gender) || "female"),
-        color: String(cell(row, idx.color) || "gold"),
-        quantity, inStock: !explicitlyOut
-      };
+return {
+  id: String(cell(row, idx.id) || `g${i}`),
+  title,
+  description: String(cell(row, idx.description) || ""),
+  price,
+
+  // Category used by the website/filter
+  category,
+
+  // Keep the original Google category available for statistics/data use
+  googleCategory,
+
+  image,
+  availability,
+
+  condition: String(cell(row, idx.condition) || "new"),
+  brand: String(cell(row, idx.brand) || "ANVI"),
+  gender: String(cell(row, idx.gender) || "female"),
+  color: String(cell(row, idx.color) || "gold"),
+  quantity,
+  inStock: !explicitlyOut
+};
     }).filter(p => p.title);
 
     updateCatalogueStats(sheetProducts);
@@ -1004,46 +1022,62 @@ async function loadProducts(){
 function renderFilters(){
   const row = document.getElementById("filterRow");
   if(!row) return;
+
   row.innerHTML = "";
   row.style.display = "flex";
   row.style.visibility = "visible";
   row.style.opacity = "1";
-  // Always build category pills from the successfully loaded Google Sheet data.
-  // Keep All first, then every distinct category exactly as normalized from the sheet.
-  const sheetCategories = [...new Set((ALL_PRODUCTS || [])
-    .map(p => String(p.category || "").trim())
-    .filter(Boolean))].sort((a,b) => a.localeCompare(b, "en", {sensitivity:"base"}));
+
+  // Build category buttons directly from google_product_category
+  const sheetCategories = [...new Set(
+    (ALL_PRODUCTS || [])
+      .map(p => String(p.googleCategory || "").trim())
+      .filter(Boolean)
+  )].sort((a, b) =>
+    a.localeCompare(b, "en", { sensitivity: "base" })
+  );
+
   const liveCategories = ["All", ...sheetCategories];
-  if(!liveCategories.includes(ACTIVE_CATEGORY)) ACTIVE_CATEGORY = "All";
+
+  if(!liveCategories.includes(ACTIVE_CATEGORY)){
+    ACTIVE_CATEGORY = "All";
+  }
+
   CATEGORIES.length = 0;
   CATEGORIES.push(...liveCategories);
+
   CATEGORIES.forEach(cat => {
     const btn = document.createElement("button");
-    btn.className = "filter-pill" + (cat === ACTIVE_CATEGORY ? " active" : "");
-    btn.textContent = String(cat).replace(/[_-]+/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2").replace(/\s+/g, " ").trim();
+
+    btn.className =
+      "filter-pill" +
+      (cat === ACTIVE_CATEGORY ? " active" : "");
+
+    // Convert technical category formatting to readable text
+    btn.textContent = String(cat)
+      .replace(/[_-]+/g, " ")
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/\s+/g, " ")
+      .trim();
+
     btn.addEventListener("click", () => {
       ACTIVE_CATEGORY = cat;
       renderFilters();
       renderProducts();
     });
-    row.appendChild(btn);
-  });
-}
 
-const productSearchInput = document.getElementById("productSearch");
-if(productSearchInput){
-  productSearchInput.addEventListener("input", () => {
-    PRODUCT_SEARCH_TERM = productSearchInput.value.trim().toLowerCase();
-    renderProducts();
+    row.appendChild(btn);
   });
 }
 
 function renderProducts(){
   const grid = document.getElementById("productGrid");
-  const categoryProducts = ACTIVE_CATEGORY === "All" ? ALL_PRODUCTS : ALL_PRODUCTS.filter(p => p.category === ACTIVE_CATEGORY);
+  const categoryProducts = ACTIVE_CATEGORY === "All"
+  ? ALL_PRODUCTS
+  : ALL_PRODUCTS.filter(p => p.googleCategory === ACTIVE_CATEGORY);
   const term = PRODUCT_SEARCH_TERM;
   const list = !term ? categoryProducts : categoryProducts.filter(p => {
-    const searchable = [p.title, p.description, p.id, p.category, p.brand, p.color].join(" ").toLowerCase();
+    const searchable = [p.title, p.description, p.id, p.googleCategory, p.brand, p.color].join(" ").toLowerCase();
     return searchable.includes(term);
   });
 
@@ -1063,7 +1097,15 @@ function renderProducts(){
     card.setAttribute("aria-label", `View details for ${p.title}`);
     card.innerHTML = `
       <div class="product-media">
-        <span class="product-cat-tag">${escapeHtml(p.category === "DiamondReplica" ? "Diamond Replica" : p.category)}</span>
+        <span class="product-cat-tag">
+  ${escapeHtml(
+    String(p.googleCategory || "")
+      .replace(/[_-]+/g, " ")
+      .replace(/([a-z])([A-Z])/g, "$1 $2")
+      .replace(/\s+/g, " ")
+      .trim()
+  )}
+</span>
         <img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.title)}" loading="lazy"
              onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">
       </div>
@@ -1125,7 +1167,7 @@ function openProductModal(product){
   const addBtn = document.getElementById("detailAddBtn");
   const buyBtn = document.getElementById("detailBuyBtn");
 
-  category.textContent = product.category === "DiamondReplica" ? "Diamond Replica" : product.category;
+  category.textContent = product.googleCategory || "—";
   title.textContent = product.title;
   price.textContent = `${CONFIG.CURRENCY_SYMBOL}${(Number(product.price) || 0).toLocaleString("en-IN")}`;
   description.textContent = product.description || "Beautifully selected by ANVI Fashion Jewellery. Please contact us on WhatsApp for more product information.";
@@ -1145,7 +1187,7 @@ function openProductModal(product){
     ["Brand", product.brand || "ANVI"],
     ["Gender", product.gender || "female"],
     ["Color", product.color || "gold"],
-    ["Category", product.category || "—"]
+    ["Category", product.googleCategory || "—"]
   ].filter(([label,value]) => String(value || "").trim());
   meta.innerHTML = metaRows.map(([label,value]) => `
     <div class="detail-meta-row"><span class="detail-meta-label">${escapeHtml(label)}</span><span class="detail-meta-value">${escapeHtml(value)}</span></div>
