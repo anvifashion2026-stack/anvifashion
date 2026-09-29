@@ -800,7 +800,7 @@ const CONFIG = {
   ORDER_ENDPOINT: "https://script.google.com/macros/s/AKfycbxa1Aj9-MsN6qq0nKTmVSX3woIEceEgeWzWbzan_5uIpCjHOTLV_FwFEcy-35VWSoqhUQ/exec"
 };
 
-const CATEGORIES = ["All", "Anklets", "Bracelets", "Chains", "DiamondReplica", "Earrings", "Rings"];
+const CATEGORIES = ["All"];
 
 /* -------- sample catalogue (used until a real Sheet ID is set, or if the fetch fails) -------- */
 const SAMPLE_PRODUCTS = [
@@ -830,17 +830,7 @@ let CART = []; // { id, title, price, category, image, qty }
    PRODUCT LOADING — Google Sheets (gviz JSON, no key/CORS issues)
    ============================================================ */
 function normalizeCategory(raw){
-  if(!raw) return "";
-  const clean = String(raw).trim().toLowerCase().replace(/[\s_-]/g, "");
-  const map = {
-    anklets:"Anklets", anklet:"Anklets",
-    bracelets:"Bracelets", bracelet:"Bracelets",
-    chains:"Chains", chain:"Chains",
-    diamondreplica:"DiamondReplica", diamondreplicas:"DiamondReplica",
-    earrings:"Earrings", earring:"Earrings",
-    rings:"Rings", ring:"Rings"
-  };
-  return map[clean] || raw;
+  return String(raw ?? "").trim();
 }
 
 function findColumn(headers, aliases){
@@ -1030,7 +1020,7 @@ function renderFilters(){
   CATEGORIES.forEach(cat => {
     const btn = document.createElement("button");
     btn.className = "filter-pill" + (cat === ACTIVE_CATEGORY ? " active" : "");
-    btn.textContent = cat === "DiamondReplica" ? "Diamond Replica" : cat;
+    btn.textContent = String(cat).replace(/[_-]+/g, " ").replace(/([a-z])([A-Z])/g, "$1 $2").replace(/\s+/g, " ").trim();
     btn.addEventListener("click", () => {
       ACTIVE_CATEGORY = cat;
       renderFilters();
