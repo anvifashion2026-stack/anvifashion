@@ -1013,7 +1013,20 @@ async function loadProducts(){
    ============================================================ */
 function renderFilters(){
   const row = document.getElementById("filterRow");
+  if(!row) return;
   row.innerHTML = "";
+  row.style.display = "flex";
+  row.style.visibility = "visible";
+  row.style.opacity = "1";
+  // Always build category pills from the successfully loaded Google Sheet data.
+  // Keep All first, then every distinct category exactly as normalized from the sheet.
+  const sheetCategories = [...new Set((ALL_PRODUCTS || [])
+    .map(p => String(p.category || "").trim())
+    .filter(Boolean))].sort((a,b) => a.localeCompare(b, "en", {sensitivity:"base"}));
+  const liveCategories = ["All", ...sheetCategories];
+  if(!liveCategories.includes(ACTIVE_CATEGORY)) ACTIVE_CATEGORY = "All";
+  CATEGORIES.length = 0;
+  CATEGORIES.push(...liveCategories);
   CATEGORIES.forEach(cat => {
     const btn = document.createElement("button");
     btn.className = "filter-pill" + (cat === ACTIVE_CATEGORY ? " active" : "");
@@ -1291,7 +1304,7 @@ async function requestNextOrderNumber(){
   // The Apps Script endpoint reserves a daily sequence centrally, so all customers
   // receive unique order numbers even when ordering from different devices.
   const endpoint = CONFIG.ORDER_ENDPOINT;
-  if(!endpoint || endpoint.includes("PASTE_SEPARATE_ORDER")) throw new Error("Separate order endpoint is not configured. Deploy the Order Apps Script and add its /exec URL.");
+  if(!endpoint || endpoint.includes("PASTE_SEPARATE_ORDER") || !/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec(?:\?.*)?$/.test(endpoint)) throw new Error("The separate Order Apps Script Web App URL is missing or invalid. Deploy the Order-only Apps Script as a Web app (Execute as: Me; access: Anyone), then paste its deployed /exec URL into CONFIG.ORDER_ENDPOINT.");
   return new Promise((resolve,reject)=>{
     const callbackName = "anviOrderCallback_" + Date.now() + "_" + Math.floor(Math.random()*100000);
     const script = document.createElement("script");
@@ -1302,7 +1315,7 @@ async function requestNextOrderNumber(){
       if(result && result.ok && result.orderNo) resolve(result.orderNo);
       else reject(new Error((result && result.error) || "Could not reserve an order number."));
     };
-    script.onerror=()=>{cleanup();reject(new Error("Could not connect to the order number service. Please check the Apps Script deployment."));};
+    script.onerror=()=>{cleanup();reject(new Error("The Order Apps Script endpoint did not respond. Confirm the separate Order Web App is deployed with access set to Anyone, copy its current /exec URL into CONFIG.ORDER_ENDPOINT, and redeploy the Web App after Apps Script changes."));};
     script.src = endpoint + (endpoint.includes("?") ? "&" : "?") + "action=nextOrder&callback=" + encodeURIComponent(callbackName) + "&_=" + Date.now();
     document.head.appendChild(script);
   });
