@@ -398,6 +398,8 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
 .cart-item-info .t{font-size:13.5px; font-weight:500;}
 .cart-item-info .cat{font-family:var(--mono); font-size:9.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.08em;}
 .qty-row{display:flex; align-items:center; gap:10px; margin-top:2px;}
+.qty-stock-note{font-size:11px;color:#9a3b2e;line-height:1.35;margin-top:2px;font-weight:500;}
+.qty-stock-note.limit-reached{color:#a72828;}
 .qty-btn{width:22px; height:22px; border:1px solid var(--line); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:13px;}
 .qty-btn:hover{border-color:var(--gold);}
 .qty-val{font-family:var(--mono); font-size:13px; min-width:14px; text-align:center;}
@@ -1185,6 +1187,7 @@ function openProductModal(product){
   status.innerHTML = `
     <span class="detail-badge ${product.inStock ? "in" : "out"}">${product.inStock ? "✓ In Stock" : "× Out of Stock"}</span>
     <span class="detail-stock">${escapeHtml(formatStock(product))}</span>
+    ${getAvailableQuantity(product) !== null && getAvailableQuantity(product) > 0 ? `<span class="detail-stock">Only ${getAvailableQuantity(product)} quantity is available to order.</span>` : ""}
   `;
 
   const metaRows = [
@@ -1246,8 +1249,41 @@ document.addEventListener("keydown", (event) => {
 /* ============================================================
    CART
    ============================================================ */
+function getAvailableQuantity(product){
+  const qty = Number(product?.quantity);
+  return Number.isFinite(qty) && qty >= 0 ? Math.floor(qty) : null;
+}
+
+function stockLimitMessage(product){
+  const available = getAvailableQuantity(product);
+  if(available === null) return "";
+  return `Only ${available} quantity is available to order.`;
+}
+
+function showQuantityLimitError(product){
+  const available = getAvailableQuantity(product);
+  if(available === null) return false;
+  alert(`Only ${available} quantity is left to order.`);
+  return true;
+}
+
 function addToCart(product){
+  if(!product.inStock){
+    alert("This product is currently out of stock.");
+    return;
+  }
+
+  const available = getAvailableQuantity(product);
   const existing = CART.find(i => i.id === product.id);
+
+  if(available !== null){
+    const currentQty = existing ? Number(existing.qty) : 0;
+    if(currentQty >= available){
+      showQuantityLimitError(product);
+      return;
+    }
+  }
+
   if(existing){ existing.qty += 1; }
   else{ CART.push({ ...product, qty: 1 }); }
   renderCart();
@@ -1257,6 +1293,15 @@ function addToCart(product){
 function changeQty(id, delta){
   const item = CART.find(i => i.id === id);
   if(!item) return;
+
+  if(delta > 0){
+    const available = getAvailableQuantity(item);
+    if(available !== null && item.qty >= available){
+      showQuantityLimitError(item);
+      return;
+    }
+  }
+
   item.qty += delta;
   if(item.qty <= 0){ CART = CART.filter(i => i.id !== id); }
   renderCart();
@@ -1297,10 +1342,11 @@ function renderCart(){
         <div class="t">${item.title}</div>
         <div class="cat">${item.category === "DiamondReplica" ? "Diamond Replica" : item.category}</div>
         <div class="qty-row">
-          <button class="qty-btn" data-act="dec">−</button>
+          <button class="qty-btn" data-act="dec" aria-label="Decrease quantity">−</button>
           <span class="qty-val">${item.qty}</span>
-          <button class="qty-btn" data-act="inc">+</button>
+          <button class="qty-btn" data-act="inc" aria-label="Increase quantity">+</button>
         </div>
+        ${getAvailableQuantity(item) !== null ? `<div class="qty-stock-note${item.qty >= getAvailableQuantity(item) ? ' limit-reached' : ''}">Only ${getAvailableQuantity(item)} quantity is available to order.</div>` : ''}
         <button class="remove-btn" data-act="rm">Remove</button>
       </div>
       <div class="cart-item-price">${CONFIG.CURRENCY_SYMBOL}${item.price * item.qty}</div>
@@ -1361,6 +1407,20 @@ async function requestNextOrderNumber(){
 
 async function openCheckout(){
   if(!CART.length){ alert("Your bag is empty — add a few pieces first."); return; }
+
+  // Re-check every cart line against the latest quantity loaded from Google Sheets
+  // before allowing the customer to enter checkout.
+  const stockError = CART.find(item => {
+    const available = getAvailableQuantity(item);
+    return available !== null && item.qty > available;
+  });
+  if(stockError){
+    const available = getAvailableQuantity(stockError);
+    alert(`Only ${available} quantity is left to order for ${stockError.title}.`);
+    renderCart();
+    return;
+  }
+
   activeOrderTotal = getCartTotal();
   document.getElementById("checkoutSummaryLines").textContent = getOrderItemsText();
   document.getElementById("checkoutSummaryTotal").textContent = CONFIG.CURRENCY_SYMBOL + activeOrderTotal.toLocaleString("en-IN");
@@ -1390,6 +1450,19 @@ checkoutModal.addEventListener("click",e=>{if(e.target===checkoutModal)closeChec
 checkoutForm.addEventListener("submit", async (event)=>{
   event.preventDefault();
   if(!CART.length){ alert("Your bag is empty. Please add products again."); closeCheckout(); return; }
+
+  const submitStockError = CART.find(item => {
+    const available = getAvailableQuantity(item);
+    return available !== null && item.qty > available;
+  });
+  if(submitStockError){
+    const available = getAvailableQuantity(submitStockError);
+    checkoutStatus.className="form-status show error";
+    checkoutStatus.textContent=`Only ${available} quantity is available to order for ${submitStockError.title}.`;
+    renderCart();
+    return;
+  }
+
   if(!activeOrderNo){
     checkoutStatus.className="form-status show error";
     checkoutStatus.textContent="Order number is not ready. Close checkout and open it again to retry.";
