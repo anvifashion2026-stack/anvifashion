@@ -210,6 +210,11 @@ nav.links a:hover::after{width:100%;}
 }
 .filter-pill:hover{border-color:var(--gold);}
 .filter-pill.active{background:var(--wine); border-color:var(--wine); color:var(--ivory);}
+.catalogue-search-wrap{margin:16px 0 24px;max-width:560px;width:100%;}
+.catalogue-search{display:block;width:100%;box-sizing:border-box;padding:14px 16px;border:1px solid var(--line,#ded5c9);border-radius:12px;background:#fff;color:var(--ink,#222);font:inherit;outline:none;}
+.catalogue-search:focus{border-color:var(--wine,#76233e);box-shadow:0 0 0 3px rgba(118,35,62,.10);}
+.search-hint{display:block;margin:7px 3px 0;font-size:12px;opacity:.72;}
+
 
 .product-grid{
   display:grid; grid-template-columns:repeat(4, 1fr); gap:26px;
@@ -579,6 +584,11 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
       <!-- filter pills injected by JS -->
     </div>
 
+    <div class="catalogue-search-wrap">
+      <input type="search" id="productSearch" class="catalogue-search" placeholder="Search products by keyword (e.g. Heart)" aria-label="Search products by keyword" autocomplete="off">
+      <span class="search-hint">Search within the selected category by product name or description.</span>
+    </div>
+
     <div class="product-grid" id="productGrid">
       <div class="grid-status">
         <div class="spinner"></div>
@@ -784,7 +794,10 @@ const CONFIG = {
   WHATSAPP_NUMBER: "919585511457",
   CURRENCY_SYMBOL: "₹",
   // Paste the deployed Google Apps Script Web App /exec URL here.
-  CONTACT_FORM_ENDPOINT: "https://script.google.com/macros/s/AKfycbxgnBrYNotKQiQx3Hjb9G3Cggn0n1ZU5inYB-9XcrU5ExF_kzeLPb5Gpfn7Mf8b6FLZ/exec"
+  // Contact form keeps using the existing contact endpoint.
+  CONTACT_FORM_ENDPOINT: "https://script.google.com/macros/s/AKfycbxgnBrYNotKQiQx3Hjb9G3Cggn0n1ZU5inYB-9XcrU5ExF_kzeLPb5Gpfn7Mf8b6FLZ/exec",
+  // Deploy the separate ANVI Order Apps Script as a Web App and paste its /exec URL here.
+  ORDER_ENDPOINT: "https://script.google.com/macros/s/AKfycbyQCnCGjD_hD9APQf1bH44DD3T1eKHP3ErIs4QM8JinaX-_BpFuMVbjzyWjkx6DGe6W/exec"
 };
 
 const CATEGORIES = ["All", "Anklets", "Bracelets", "Chains", "DiamondReplica", "Earrings", "Rings"];
@@ -810,6 +823,7 @@ const SAMPLE_PRODUCTS = [
    ============================================================ */
 let ALL_PRODUCTS = [];
 let ACTIVE_CATEGORY = "All";
+let PRODUCT_SEARCH_TERM = "";
 let CART = []; // { id, title, price, category, image, qty }
 
 /* ============================================================
@@ -1013,14 +1027,27 @@ function renderFilters(){
   });
 }
 
+const productSearchInput = document.getElementById("productSearch");
+if(productSearchInput){
+  productSearchInput.addEventListener("input", () => {
+    PRODUCT_SEARCH_TERM = productSearchInput.value.trim().toLowerCase();
+    renderProducts();
+  });
+}
+
 function renderProducts(){
   const grid = document.getElementById("productGrid");
-  const list = ACTIVE_CATEGORY === "All" ? ALL_PRODUCTS : ALL_PRODUCTS.filter(p => p.category === ACTIVE_CATEGORY);
+  const categoryProducts = ACTIVE_CATEGORY === "All" ? ALL_PRODUCTS : ALL_PRODUCTS.filter(p => p.category === ACTIVE_CATEGORY);
+  const term = PRODUCT_SEARCH_TERM;
+  const list = !term ? categoryProducts : categoryProducts.filter(p => {
+    const searchable = [p.title, p.description, p.id, p.category, p.brand, p.color].join(" ").toLowerCase();
+    return searchable.includes(term);
+  });
 
   if(list.length === 0){
     // Preserve the detailed catalogue loading error set by loadProducts().
     if(ALL_PRODUCTS.length === 0 && grid.innerHTML.includes("Products could not be loaded")) return;
-    grid.innerHTML = `<div class="grid-status">No products in this category yet.</div>`;
+    grid.innerHTML = `<div class="grid-status">${term ? `No products matching “${escapeHtml(term)}” in ${escapeHtml(ACTIVE_CATEGORY)}.` : `No products in this category yet.`}</div>`;
     return;
   }
 
@@ -1260,18 +1287,49 @@ function getCartTotal(){ return CART.reduce((sum,item)=>sum + Number(item.price|
 function getOrderItemsText(){
   return CART.map(item => `${item.title} (Qty: ${item.qty}) - ${CONFIG.CURRENCY_SYMBOL}${Number(item.price||0)*Number(item.qty||0)}`).join("\n");
 }
-function openCheckout(){
+async function requestNextOrderNumber(){
+  // The Apps Script endpoint reserves a daily sequence centrally, so all customers
+  // receive unique order numbers even when ordering from different devices.
+  const endpoint = CONFIG.ORDER_ENDPOINT;
+  if(!endpoint || endpoint.includes("PASTE_SEPARATE_ORDER")) throw new Error("Separate order endpoint is not configured. Deploy the Order Apps Script and add its /exec URL.");
+  return new Promise((resolve,reject)=>{
+    const callbackName = "anviOrderCallback_" + Date.now() + "_" + Math.floor(Math.random()*100000);
+    const script = document.createElement("script");
+    const timeout = setTimeout(()=>{cleanup();reject(new Error("Order number service timed out. Please try again."));},15000);
+    function cleanup(){clearTimeout(timeout);try{delete window[callbackName];}catch(_){window[callbackName]=undefined;}script.remove();}
+    window[callbackName] = result => {
+      cleanup();
+      if(result && result.ok && result.orderNo) resolve(result.orderNo);
+      else reject(new Error((result && result.error) || "Could not reserve an order number."));
+    };
+    script.onerror=()=>{cleanup();reject(new Error("Could not connect to the order number service. Please check the Apps Script deployment."));};
+    script.src = endpoint + (endpoint.includes("?") ? "&" : "?") + "action=nextOrder&callback=" + encodeURIComponent(callbackName) + "&_=" + Date.now();
+    document.head.appendChild(script);
+  });
+}
+
+async function openCheckout(){
   if(!CART.length){ alert("Your bag is empty — add a few pieces first."); return; }
-  activeOrderNo = "ANVI-" + new Date().toISOString().replace(/[-:T.Z]/g,"").slice(0,14) + "-" + Math.floor(100+Math.random()*900);
   activeOrderTotal = getCartTotal();
   document.getElementById("checkoutSummaryLines").textContent = getOrderItemsText();
   document.getElementById("checkoutSummaryTotal").textContent = CONFIG.CURRENCY_SYMBOL + activeOrderTotal.toLocaleString("en-IN");
-  checkoutStatus.className = "form-status";
-  checkoutStatus.textContent = "";
+  checkoutStatus.className = "form-status show";
+  checkoutStatus.textContent = "Generating your order number…";
   checkoutModal.classList.add("open");
   checkoutModal.setAttribute("aria-hidden","false");
   closeDrawer();
-  document.getElementById("billName").focus();
+  placeOrderBtn.disabled = true;
+  try{
+    activeOrderNo = await requestNextOrderNumber();
+    checkoutStatus.className = "form-status";
+    checkoutStatus.textContent = "";
+    document.getElementById("billName").focus();
+  }catch(err){
+    checkoutStatus.className = "form-status show error";
+    checkoutStatus.textContent = (err.message || "Could not generate order number.") + " Please contact ANVI on WhatsApp if this continues.";
+  }finally{
+    placeOrderBtn.disabled = false;
+  }
 }
 function closeCheckout(){ checkoutModal.classList.remove("open"); checkoutModal.setAttribute("aria-hidden","true"); }
 document.getElementById("checkoutBtn").addEventListener("click", openCheckout);
@@ -1281,9 +1339,14 @@ checkoutModal.addEventListener("click",e=>{if(e.target===checkoutModal)closeChec
 checkoutForm.addEventListener("submit", async (event)=>{
   event.preventDefault();
   if(!CART.length){ alert("Your bag is empty. Please add products again."); closeCheckout(); return; }
-  if(!CONFIG.CONTACT_FORM_ENDPOINT){
+  if(!activeOrderNo){
     checkoutStatus.className="form-status show error";
-    checkoutStatus.textContent="Order form is not connected to Google Sheets yet. Please contact ANVI on WhatsApp.";
+    checkoutStatus.textContent="Order number is not ready. Close checkout and open it again to retry.";
+    return;
+  }
+  if(!CONFIG.ORDER_ENDPOINT || CONFIG.ORDER_ENDPOINT.includes("PASTE_SEPARATE_ORDER")){
+    checkoutStatus.className="form-status show error";
+    checkoutStatus.textContent="Order form is not connected yet. Please contact ANVI on WhatsApp.";
     return;
   }
   const fd = new FormData(checkoutForm);
@@ -1311,7 +1374,7 @@ checkoutForm.addEventListener("submit", async (event)=>{
   try{
     // Apps Script must be deployed as a Web App with access set to Anyone.
     // no-cors prevents reading the cross-origin response; it does not confirm sheet write success.
-    await fetch(CONFIG.CONTACT_FORM_ENDPOINT,{
+    await fetch(CONFIG.ORDER_ENDPOINT,{
       method:"POST",mode:"no-cors",
       headers:{"Content-Type":"text/plain;charset=utf-8"},
       body:JSON.stringify(payload)
