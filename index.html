@@ -923,10 +923,10 @@ async function loadProducts(){
       title: find(["title", "product name", "item name", "name", "product"]),
       description: find(["description", "sales description", "product description", "details"]),
       availability: find(["availability", "stock status", "stockstatus"]),
-      quantity: find(["quantity to sell on facebook", "stock qty", "stock quantity", "quantity", "qty", "available qty"]),
+      quantity: find(["quantity_to_sell_on_facebook", "stock qty", "stock quantity", "quantity", "qty", "available qty"]),
       price: find(["price", "selling price", "sale price", "sellingpriceinr", "price inr", "rate", "mrp", "amount"]),
       // Category must be checked before item_group_id: that field is a grouping ID, not a product category.
-      category: find(["category", "product category", "product type", "collection", "item group id", "type"]),
+      category: find(["category", "google_product_category", "product category", "product type", "collection", "item group id", "type"]),
       image: find(["image link", "image url", "main image", "product image", "image"]),
       condition: find(["condition"]),
       googleCategory: find(["google_product_category", "google category"]),
@@ -965,7 +965,7 @@ async function loadProducts(){
       return {
         id: String(cell(row, idx.id) || `g${i}`), title,
         description: String(cell(row, idx.description) || ""), price,
-        category: category || "Other", googleCategory, image, availability,
+        category: googleCategory, image, availability,
         condition: String(cell(row, idx.condition) || "new"),
         brand: String(cell(row, idx.brand) || "ANVI"),
         gender: String(cell(row, idx.gender) || "female"),
