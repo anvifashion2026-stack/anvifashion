@@ -279,70 +279,6 @@ nav.links a:hover::after{width:100%;}
 }
 @keyframes spin{to{transform:rotate(360deg);}}
 
-
-/* -------- Category -> sub-category -> variants experience -------- */
-.category-variant-view{display:none;margin-top:4px;}
-.category-variant-view.active{display:block;}
-.variant-view-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:24px;}
-.variant-view-head h3{font-size:30px;margin-top:7px;}
-.variant-view-head p{margin-top:7px;color:var(--ink-soft);font-size:13.5px;max-width:700px;}
-.variant-breadcrumb{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);}
-.variant-nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end;}
-.variant-nav-btn{padding:9px 16px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink-soft);font-size:12px;white-space:nowrap;}
-.variant-nav-btn:hover{border-color:var(--gold);color:var(--wine);}
-.subcategory-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px;}
-.subcategory-card{border:1px solid var(--line);border-radius:12px;background:#fff;overflow:hidden;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;min-width:0;}
-.subcategory-card:hover{transform:translateY(-3px);box-shadow:var(--shadow);border-color:var(--gold);}
-.subcategory-image{aspect-ratio:1/1;background:var(--blush);position:relative;overflow:hidden;}
-.subcategory-image img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;}
-.subcategory-card:hover .subcategory-image img{transform:scale(1.05);}
-.subcategory-info{padding:15px 16px 17px;}
-.subcategory-name{font-family:var(--display);font-size:23px;color:var(--wine);}
-.subcategory-count{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-top:5px;}
-.subcategory-arrow{margin-top:12px;font-size:12px;color:var(--wine);}
-.variant-product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
-.variant-product-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;min-width:0;}
-.variant-product-media{aspect-ratio:1/1;background:var(--blush);position:relative;overflow:hidden;cursor:zoom-in;}
-.variant-product-media img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;}
-.variant-product-media:hover img{transform:scale(1.05);}
-.variant-product-zoom{position:absolute;right:10px;bottom:10px;width:32px;height:32px;border-radius:50%;background:rgba(250,246,240,.94);color:var(--wine);display:flex;align-items:center;justify-content:center;border:1px solid var(--line);}
-.variant-product-zoom svg{width:15px;height:15px;}
-.variant-product-body{padding:15px 16px 17px;}
-.variant-product-name{font-size:14px;font-weight:500;line-height:1.35;color:var(--ink);min-height:38px;}
-.variant-product-design{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-top:5px;}
-.variant-product-price{font-family:var(--mono);font-size:14px;color:var(--wine-deep);font-weight:500;margin-top:8px;}
-.variant-size-label{font-size:11px;color:var(--ink-soft);margin-top:14px;margin-bottom:7px;}
-.variant-size-options{display:flex;gap:7px;flex-wrap:wrap;}
-.variant-size-btn{min-width:40px;height:36px;padding:0 10px;border-radius:7px;border:1px solid var(--line);background:#fff;color:var(--ink);font-family:var(--mono);font-size:11px;cursor:pointer;transition:all .15s ease;}
-.variant-size-btn:hover:not(:disabled){border-color:var(--gold);color:var(--wine);}
-.variant-size-btn.selected{background:var(--wine);border-color:var(--wine);color:var(--ivory);}
-.variant-size-btn:disabled{cursor:not-allowed;opacity:.36;text-decoration:line-through;background:#f7f4f1;}
-.variant-action-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;}
-.variant-stock-note{font-size:10px;color:#16804a;line-height:1.35;}
-.variant-add-btn{padding:10px 13px;border:1px solid var(--wine);border-radius:7px;background:var(--wine);color:var(--ivory);font-size:11px;white-space:nowrap;}
-.variant-add-btn:hover:not(:disabled){background:var(--wine-deep);}
-.variant-add-btn:disabled{opacity:.45;cursor:not-allowed;}
-.variant-status{grid-column:1/-1;text-align:center;padding:44px 0;color:var(--ink-soft);font-size:13px;}
-.variant-empty{padding:30px 12px;text-align:center;color:var(--ink-soft);font-size:12px;border:1px dashed var(--line);border-radius:10px;}
-.image-zoom-modal{position:fixed;inset:0;z-index:240;background:rgba(15,12,14,.82);display:none;align-items:center;justify-content:center;padding:30px;backdrop-filter:blur(5px);}
-.image-zoom-modal.open{display:flex;}
-.image-zoom-stage{width:min(900px,94vw);height:min(86vh,900px);display:flex;align-items:center;justify-content:center;position:relative;}
-.image-zoom-stage img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;box-shadow:0 20px 70px rgba(0,0,0,.45);background:#fff;}
-.image-zoom-close{position:absolute;right:-4px;top:-4px;width:42px;height:42px;border-radius:50%;background:#fff;color:var(--ink);font-size:27px;line-height:1;border:1px solid rgba(0,0,0,.12);box-shadow:0 5px 20px rgba(0,0,0,.25);z-index:2;}
-.image-zoom-caption{position:absolute;left:50%;bottom:-25px;transform:translateX(-50%);color:#fff;font-size:12px;text-align:center;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;}
-@media(max-width:1000px){
-  .subcategory-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
-  .variant-product-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
-}
-@media(max-width:600px){
-  .variant-view-head{align-items:flex-start;flex-direction:column;}
-  .variant-nav{justify-content:flex-start;}
-  .subcategory-grid,.variant-product-grid{grid-template-columns:1fr;}
-  .image-zoom-modal{padding:18px;}
-  .image-zoom-close{right:0;top:0;}
-  .image-zoom-caption{bottom:-8px;}
-}
-
 /* -------- policy section -------- */
 .policy{background:var(--ivory-dim); padding:70px 0;}
 .policy h2{font-size:32px; text-align:center;}
@@ -492,12 +428,6 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
 .product-detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:560px;}
 .product-detail-media{background:#f8f8fa;min-height:560px;display:flex;align-items:center;justify-content:center;padding:34px;border-radius:24px 0 0 24px;position:relative;}
 .product-detail-media img{width:100%;height:100%;max-height:600px;object-fit:contain;border-radius:18px;}
-.detail-image-button{width:100%;height:100%;min-height:480px;border:0;background:transparent;cursor:zoom-in;padding:0;display:flex;align-items:center;justify-content:center;}
-.detail-image-button img{cursor:zoom-in;}
-.detail-image-button::after{content:'Click to zoom';position:absolute;bottom:18px;left:50%;transform:translateX(-50%);padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.9);color:#5b4f45;font-size:11px;opacity:0;transition:opacity .2s;pointer-events:none;}
-.product-detail-media:hover .detail-image-button::after{opacity:1;}
-@media(max-width:760px){.detail-image-button{min-height:290px;}}
-
 .product-detail-info{padding:48px 42px 42px;}
 .product-detail-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9a8192;margin-bottom:12px;}
 .product-detail-info h2{font-family:var(--display);font-size:clamp(28px,3vw,42px);line-height:1.05;margin:0 42px 16px 0;color:#101827;}
@@ -667,23 +597,6 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
         Loading products from the catalogue…
       </div>
     </div>
-
-    <!-- Dynamic variant page: Google category -> sub-category -> product variants -->
-    <div class="category-variant-view" id="categoryVariantView" aria-live="polite">
-      <div class="variant-view-head">
-        <div>
-          <div class="variant-breadcrumb" id="variantViewBreadcrumb">Category</div>
-          <h3 id="variantViewTitle">Choose a sub-category</h3>
-          <p id="variantViewDescription">Select a sub-category to browse the available products.</p>
-        </div>
-        <div class="variant-nav">
-          <button class="variant-nav-btn" id="variantBackCategoryBtn" type="button">← Categories</button>
-          <button class="variant-nav-btn" id="variantBackSubcategoryBtn" type="button" style="display:none;">← Sub-Categories</button>
-        </div>
-      </div>
-      <div class="subcategory-grid" id="subcategoryGrid"></div>
-      <div class="variant-product-grid" id="variantProductGrid" style="display:none;"></div>
-    </div>
   </div>
 </section>
 
@@ -707,15 +620,6 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
         </div>
       </div>
     </div>
-  </div>
-</div>
-
-<!-- ================= IMAGE ZOOM ================= -->
-<div class="image-zoom-modal" id="imageZoomModal" aria-hidden="true">
-  <div class="image-zoom-stage" role="dialog" aria-modal="true" aria-label="Product image zoom">
-    <button class="image-zoom-close" id="imageZoomClose" type="button" aria-label="Close image zoom">&times;</button>
-    <img id="imageZoomImg" src="" alt="">
-    <div class="image-zoom-caption" id="imageZoomCaption"></div>
   </div>
 </div>
 
@@ -922,9 +826,7 @@ const SAMPLE_PRODUCTS = [
 let ALL_PRODUCTS = [];
 let ACTIVE_CATEGORY = "All";
 let PRODUCT_SEARCH_TERM = "";
-let ACTIVE_SUBCATEGORY = "";
-const RING_SIZES = ["5", "6", "7", "8"];
-let CART = []; // { id, cartKey, title, price, category, image, qty }
+let CART = []; // { id, title, price, category, image, qty }
 
 /* ============================================================
    PRODUCT LOADING — Google Sheets (gviz JSON, no key/CORS issues)
@@ -956,20 +858,6 @@ function escapeHtml(value){
   return String(value ?? "").replace(/[&<>"']/g, ch => ({
     "&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;", "'":"&#039;"
   }[ch]));
-}
-
-function formatCatalogueLabel(value){
-  return String(value || "")
-    .replace(/[_-]+/g, " ")
-    .replace(/([a-z])([A-Z])/g, "$1 $2")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-function normalizeRingSize(value){
-  const raw = String(value ?? "").trim();
-  const match = raw.match(/(?:size\s*)?(5|6|7|8)(?:\s*(?:us|uk))?$/i);
-  return match ? match[1] : "";
 }
 
 function updateCatalogueStats(products){
@@ -1048,10 +936,7 @@ const idx = {
   condition: find(["condition"]),
   brand: find(["brand", "org name"]),
   gender: find(["gender"]),
-  color: find(["color"]),
-  subCategory: find(["sub-category", "sub category", "subcategory"]),
-  size: find(["size", "ring size", "product size", "variant size"]),
-  design: find(["design", "design name", "design code", "style"])
+  color: find(["color"])
 };
 if(idx.googleCategory < 0) {
   throw new Error(
@@ -1074,12 +959,6 @@ if(idx.googleCategory < 0) {
       return match ? Number(match[0]) : 0;
     };
 
-    const deriveRingSize = value => normalizeRingSize(value);
-    const deriveRingDesign = (designValue, title) => {
-      const explicit = String(designValue ?? "").trim();
-      return explicit || String(title || "").trim() || "Design";
-    };
-
     const sheetProducts = dataRows.map((row, i) => {
       const title = String(cell(row, idx.title) ?? "").trim();
       const price = parsePrice(cell(row, idx.price));
@@ -1091,15 +970,8 @@ if(idx.googleCategory < 0) {
       const quantity = quantityRaw === "" ? null : Number(quantityRaw);
       const explicitlyOut = ["out of stock", "unavailable", "sold out", "outofstock"].includes(availability)
         || (quantity !== null && !Number.isNaN(quantity) && quantity <= 0);
-const sourceId = String(cell(row, idx.id) || `g${i}`).trim();
-      const subCategory = String(cell(row, idx.subCategory) || "").trim();
-      const size = deriveRingSize(cell(row, idx.size));
-      const design = deriveRingDesign(cell(row, idx.design), title);
-
-      return {
-  id: sourceId,
-  // Internal key keeps different sizes separate even if the source ID/SKU is repeated.
-  cartKey: `${sourceId}__${normalizeCategory(category)}__${subCategory.toLowerCase()}__${design.toLowerCase()}__${size || "nosize"}`,
+return {
+  id: String(cell(row, idx.id) || `g${i}`),
   title,
   description: String(cell(row, idx.description) || ""),
   price,
@@ -1117,9 +989,6 @@ const sourceId = String(cell(row, idx.id) || `g${i}`).trim();
   brand: String(cell(row, idx.brand) || "ANVI"),
   gender: String(cell(row, idx.gender) || "female"),
   color: String(cell(row, idx.color) || "gold"),
-  subCategory,
-  size,
-  design,
   quantity,
   inStock: !explicitlyOut
 };
@@ -1195,9 +1064,6 @@ function renderFilters(){
 
     btn.addEventListener("click", () => {
       ACTIVE_CATEGORY = cat;
-      ACTIVE_SUBCATEGORY = "";
-      PRODUCT_SEARCH_TERM = "";
-      if(productSearchInput) productSearchInput.value = "";
       renderFilters();
       renderProducts();
     });
@@ -1209,285 +1075,14 @@ const productSearchInput = document.getElementById("productSearch");
 if(productSearchInput){
   productSearchInput.addEventListener("input", () => {
     PRODUCT_SEARCH_TERM = productSearchInput.value.trim().toLowerCase();
-    if(ACTIVE_SUBCATEGORY){
-      const entries = getSubCategoryEntries(ACTIVE_CATEGORY);
-      const entry = entries.find(e => e.name.toLowerCase() === ACTIVE_SUBCATEGORY.toLowerCase());
-      if(entry) renderVariantProducts(entry.products, isRingsGoogleCategory(ACTIVE_CATEGORY));
-      return;
-    }
     renderProducts();
   });
 }
-function normalizeCategoryKey(value){
-  return String(value || "").trim().toLowerCase();
-}
-
-function isRingsGoogleCategory(category){
-  const text = String(category || "").trim();
-  return /^(?:rings)(?:\s*-.*)?$/i.test(text) || /(?:^|[>\/])\s*rings(?:\s*-.*)?$/i.test(text);
-}
-
-function hasSubCategoriesForCategory(category){
-  const key = normalizeCategoryKey(category);
-  return [...new Set(
-    (ALL_PRODUCTS || [])
-      .filter(p => normalizeCategoryKey(p.googleCategory) === key)
-      .map(p => String(p.subCategory || "").trim())
-      .filter(Boolean)
-      .map(v => v.toLowerCase())
-  )].length > 0;
-}
-
-function getCategoryProducts(category){
-  const key = normalizeCategoryKey(category);
-  return category === "All"
-    ? ALL_PRODUCTS
-    : ALL_PRODUCTS.filter(p => normalizeCategoryKey(p.googleCategory) === key);
-}
-
-function getSubCategoryEntries(category){
-  const products = getCategoryProducts(category);
-  const map = new Map();
-  products.forEach(p => {
-    const name = String(p.subCategory || "").trim();
-    const key = name.toLowerCase();
-    if(!name) return;
-    if(!map.has(key)) map.set(key, { name, products: [] });
-    map.get(key).products.push(p);
-  });
-
-  // Keep products without a sub-category reachable without changing the top-level filter.
-  const blankProducts = products.filter(p => !String(p.subCategory || "").trim());
-  if(blankProducts.length) map.set("__other__", { name: "Other", products: blankProducts });
-
-  return [...map.values()].sort((a,b) => a.name.localeCompare(b.name, "en", { sensitivity:"base" }));
-}
-
-function showCategoryVariantView(category){
-  const grid = document.getElementById("productGrid");
-  const view = document.getElementById("categoryVariantView");
-  if(!view) return false;
-
-  const subcats = getSubCategoryEntries(category);
-  if(!subcats.length) return false;
-
-  if(grid) grid.style.display = "none";
-  view.classList.add("active");
-  ACTIVE_SUBCATEGORY = "";
-  renderSubcategoryTiles(category, subcats);
-  return true;
-}
-
-function hideCategoryVariantView(){
-  const grid = document.getElementById("productGrid");
-  const view = document.getElementById("categoryVariantView");
-  ACTIVE_SUBCATEGORY = "";
-  if(view) view.classList.remove("active");
-  if(grid) grid.style.display = "grid";
-}
-
-function renderSubcategoryTiles(category, entries){
-  const subGrid = document.getElementById("subcategoryGrid");
-  const productGrid = document.getElementById("variantProductGrid");
-  const title = document.getElementById("variantViewTitle");
-  const breadcrumb = document.getElementById("variantViewBreadcrumb");
-  const description = document.getElementById("variantViewDescription");
-  const backCategory = document.getElementById("variantBackCategoryBtn");
-  const backSub = document.getElementById("variantBackSubcategoryBtn");
-  if(!subGrid || !productGrid) return;
-
-  if(breadcrumb) breadcrumb.textContent = formatCatalogueLabel(category);
-  if(title) title.textContent = "Choose a sub-category";
-  if(description) description.textContent = `Select a ${formatCatalogueLabel(category)} sub-category to browse its products.`;
-  if(backCategory) backCategory.style.display = "inline-flex";
-  if(backSub) backSub.style.display = "none";
-  subGrid.style.display = "grid";
-  productGrid.style.display = "none";
-
-  subGrid.innerHTML = entries.map(entry => {
-    const preview = entry.products.find(p => p.image)?.image || "";
-    const designCount = new Set(entry.products.map(p => String(p.design || p.title || p.id).trim().toLowerCase()).filter(Boolean)).size;
-    return `<article class="subcategory-card" tabindex="0" role="button" data-subcategory-key="${escapeHtml(entry.name)}" aria-label="Open ${escapeHtml(entry.name)}">
-      <div class="subcategory-image">
-        ${preview ? `<img src="${escapeHtml(preview)}" alt="${escapeHtml(entry.name)}" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">` : `<div class="no-image" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:34px;color:var(--wine);">ANVI</div>`}
-      </div>
-      <div class="subcategory-info">
-        <div class="subcategory-name">${escapeHtml(entry.name)}</div>
-        <div class="subcategory-count">${entry.products.length} variant row${entry.products.length === 1 ? "" : "s"} · ${designCount} design${designCount === 1 ? "" : "s"}</div>
-        <div class="subcategory-arrow">View products →</div>
-      </div>
-    </article>`;
-  }).join("");
-
-  subGrid.querySelectorAll(".subcategory-card").forEach(card => {
-    const name = card.dataset.subcategoryKey || "";
-    const entry = entries.find(e => e.name.toLowerCase() === name.toLowerCase());
-    if(!entry) return;
-    const open = () => showSubcategoryProducts(category, entry.name);
-    card.addEventListener("click", open);
-    card.addEventListener("keydown", event => {
-      if(event.key === "Enter" || event.key === " "){ event.preventDefault(); open(); }
-    });
-  });
-}
-
-function showSubcategoryProducts(category, subcategory){
-  const view = document.getElementById("categoryVariantView");
-  if(!view) return;
-  const entries = getSubCategoryEntries(category);
-  const entry = entries.find(e => e.name.toLowerCase() === String(subcategory || "").trim().toLowerCase());
-  if(!entry) return;
-
-  ACTIVE_SUBCATEGORY = entry.name;
-  const subGrid = document.getElementById("subcategoryGrid");
-  const productGrid = document.getElementById("variantProductGrid");
-  const title = document.getElementById("variantViewTitle");
-  const breadcrumb = document.getElementById("variantViewBreadcrumb");
-  const description = document.getElementById("variantViewDescription");
-  const backCategory = document.getElementById("variantBackCategoryBtn");
-  const backSub = document.getElementById("variantBackSubcategoryBtn");
-
-  if(subGrid) subGrid.style.display = "none";
-  if(productGrid) productGrid.style.display = "grid";
-  if(breadcrumb) breadcrumb.textContent = `${formatCatalogueLabel(category)} / ${formatCatalogueLabel(entry.name)}`;
-  if(title) title.textContent = formatCatalogueLabel(entry.name);
-  if(description) description.textContent = isRingsGoogleCategory(category)
-    ? "Select a ring size for each design. Sizes that are unavailable are disabled."
-    : "Choose a product to add it to your cart.";
-  if(backCategory) backCategory.style.display = "none";
-  if(backSub) backSub.style.display = "inline-flex";
-
-  renderVariantProducts(entry.products, isRingsGoogleCategory(category));
-}
-
-function renderVariantProducts(products, isRing){
-  const wrap = document.getElementById("variantProductGrid");
-  if(!wrap) return;
-
-  const term = PRODUCT_SEARCH_TERM;
-  const filtered = !term ? products : products.filter(p => {
-    const searchable = [p.title, p.description, p.id, p.googleCategory, p.subCategory, p.design, p.brand, p.color].join(" ").toLowerCase();
-    return searchable.includes(term);
-  });
-
-  const groups = new Map();
-  filtered.forEach(p => {
-    const key = String(p.design || p.title || p.id).trim().toLowerCase();
-    if(!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(p);
-  });
-
-  if(!groups.size){
-    wrap.innerHTML = `<div class="variant-status">${term ? `No products matching “${escapeHtml(term)}” here.` : "No products are available in this sub-category."}</div>`;
-    return;
-  }
-
-  wrap.innerHTML = [...groups.values()].map(variants => {
-    const sorted = [...variants].sort((a,b) => String(a.size || "").localeCompare(String(b.size || ""), "en", { numeric:true }));
-    const primary = sorted.find(v => v.inStock && v.image) || sorted.find(v => v.image) || sorted[0];
-    const design = String(primary.design || primary.title || "Design").trim();
-    const title = String(primary.title || design).trim();
-    const priceVariant = sorted.find(v => Number(v.price) > 0) || primary;
-    const sizeButtons = isRing
-      ? RING_SIZES.map(size => {
-          const variant = sorted.find(v => normalizeRingSize(v.size) === size);
-          const available = !!variant && !!variant.inStock;
-          const qty = variant ? getAvailableQuantity(variant) : null;
-          return `<button type="button" class="variant-size-btn" data-size="${size}" data-variant-key="${variant ? escapeHtml(variant.cartKey || variant.id) : ""}" ${available ? "" : "disabled"} title="${available ? `Size ${size}${qty !== null ? ` — ${qty} available` : " available"}` : `Size ${size} unavailable`}">${size}</button>`;
-        }).join("")
-      : "";
-    const groupKey = String(design).trim().toLowerCase();
-    return `<article class="variant-product-card" data-group-key="${escapeHtml(groupKey)}">
-      <div class="variant-product-media" data-zoom-image="${escapeHtml(primary.image || "")}" data-zoom-caption="${escapeHtml(design)}">
-        ${primary.image ? `<img src="${escapeHtml(primary.image)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">` : `<div class="no-image" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:34px;color:var(--wine);">ANVI</div>`}
-        ${primary.image ? `<span class="variant-product-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 5 5M10.8 8v5.6M8 10.8h5.6"/></svg></span>` : ""}
-      </div>
-      <div class="variant-product-body">
-        <div class="variant-product-name">${escapeHtml(title)}</div>
-        <div class="variant-product-design">Design: ${escapeHtml(design)}</div>
-        <div class="variant-product-price">${CONFIG.CURRENCY_SYMBOL}${(Number(priceVariant.price) || 0).toLocaleString("en-IN")}</div>
-        ${isRing ? `<div class="variant-size-label">Select size</div><div class="variant-size-options">${sizeButtons}</div>` : ""}
-        <div class="variant-action-row">
-          <div class="variant-stock-note">${isRing ? "Unavailable sizes are disabled" : (primary.inStock ? formatStock(primary) : "Out of stock")}</div>
-          <button type="button" class="variant-add-btn" disabled>Add to Cart</button>
-        </div>
-      </div>
-    </article>`;
-  }).join("");
-
-  wrap.querySelectorAll(".variant-product-card").forEach(card => {
-    const groupKey = card.dataset.groupKey || "";
-    const variantList = groups.get(groupKey) || [];
-    const addBtn = card.querySelector(".variant-add-btn");
-    const variantBySize = new Map();
-    variantList.forEach(v => {
-      const sizeKey = normalizeRingSize(v.size);
-      if(sizeKey && !variantBySize.has(sizeKey)) variantBySize.set(sizeKey, v);
-    });
-    let selectedVariant = null;
-
-    const refresh = () => {
-      card.querySelectorAll(".variant-size-btn").forEach(btn => {
-        btn.classList.toggle("selected", !!selectedVariant && btn.dataset.size === normalizeRingSize(selectedVariant.size));
-      });
-      if(addBtn){
-        addBtn.disabled = !selectedVariant || !selectedVariant.inStock;
-        const priceEl = card.querySelector(".variant-product-price");
-        if(selectedVariant){
-          const q = getAvailableQuantity(selectedVariant);
-          addBtn.textContent = `Add Size ${selectedVariant.size}`;
-          if(priceEl) priceEl.textContent = `${CONFIG.CURRENCY_SYMBOL}${(Number(selectedVariant.price) || 0).toLocaleString("en-IN")}`;
-          const note = card.querySelector(".variant-stock-note");
-          if(note) note.textContent = q !== null ? `${q} available in size ${selectedVariant.size}` : `Available in size ${selectedVariant.size}`;
-        } else {
-          addBtn.textContent = "Select a Size";
-          if(priceEl) priceEl.textContent = `${CONFIG.CURRENCY_SYMBOL}${(Number(priceVariant.price) || 0).toLocaleString("en-IN")}`;
-        }
-      }
-    };
-
-    card.querySelectorAll(".variant-size-btn").forEach(btn => {
-      btn.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation();
-        const size = normalizeRingSize(btn.dataset.size);
-        // Use the selected size within this design, rather than looking up by ID/SKU.
-        selectedVariant = variantBySize.get(size) || null;
-        refresh();
-      });
-    });
-
-    const media = card.querySelector(".variant-product-media");
-    if(media && media.dataset.zoomImage){
-      media.addEventListener("click", () => openImageZoom(media.dataset.zoomImage, media.dataset.zoomCaption));
-    }
-
-    if(addBtn){
-      addBtn.addEventListener("click", event => {
-        event.preventDefault();
-        event.stopPropagation();
-        if(!selectedVariant || !selectedVariant.inStock) return;
-        addToCart(selectedVariant);
-        addBtn.textContent = "Added ✓";
-        setTimeout(refresh, 900);
-      });
-    }
-
-    refresh();
-  });
-}
-
 function renderProducts(){
   const grid = document.getElementById("productGrid");
-  const categoryProducts = getCategoryProducts(ACTIVE_CATEGORY);
-
-  // Keep the normal google_product_category filter intact.
-  // If the selected Google category has Sub-Category values, use the two-level variant view.
-  if(ACTIVE_CATEGORY !== "All" && showCategoryVariantView(ACTIVE_CATEGORY)){
-    return;
-  }
-
-  hideCategoryVariantView();
+  const categoryProducts = ACTIVE_CATEGORY === "All"
+  ? ALL_PRODUCTS
+  : ALL_PRODUCTS.filter(p => p.googleCategory === ACTIVE_CATEGORY);
   const term = PRODUCT_SEARCH_TERM;
   const list = !term ? categoryProducts : categoryProducts.filter(p => {
     const searchable = [p.title, p.description, p.id, p.googleCategory, p.brand, p.color].join(" ").toLowerCase();
@@ -1561,33 +1156,6 @@ function renderProducts(){
   });
 }
 
-function openImageZoom(image, caption){
-  if(!image) return;
-  const modal = document.getElementById("imageZoomModal");
-  const img = document.getElementById("imageZoomImg");
-  const cap = document.getElementById("imageZoomCaption");
-  if(!modal || !img) return;
-  img.src = image;
-  img.alt = caption || "Product image";
-  if(cap) cap.textContent = caption || "";
-  modal.classList.add("open");
-  modal.setAttribute("aria-hidden", "false");
-}
-function closeImageZoom(){
-  const modal = document.getElementById("imageZoomModal");
-  if(!modal) return;
-  modal.classList.remove("open");
-  modal.setAttribute("aria-hidden", "true");
-  const img = document.getElementById("imageZoomImg");
-  if(img) img.src = "";
-}
-const imageZoomModal = document.getElementById("imageZoomModal");
-const imageZoomClose = document.getElementById("imageZoomClose");
-if(imageZoomClose) imageZoomClose.addEventListener("click", closeImageZoom);
-if(imageZoomModal) imageZoomModal.addEventListener("click", event => {
-  if(event.target === imageZoomModal) closeImageZoom();
-});
-
 function formatStock(product){
   if(product.quantity !== null && !Number.isNaN(product.quantity)){
     return product.quantity > 0 ? `${product.quantity} available` : "0 available";
@@ -1613,10 +1181,8 @@ function openProductModal(product){
   description.textContent = product.description || "Beautifully selected by ANVI Fashion Jewellery. Please contact us on WhatsApp for more product information.";
 
   media.innerHTML = product.image
-    ? `<button type="button" class="detail-image-button" aria-label="Zoom ${escapeHtml(product.title)}"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');"></button>`
+    ? `<img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">`
     : `<div style="font-family:var(--display);font-size:42px;color:var(--wine);">ANVI</div>`;
-  const detailImageButton = media.querySelector(".detail-image-button");
-  if(detailImageButton) detailImageButton.addEventListener("click", () => openImageZoom(product.image, product.title));
 
   status.innerHTML = `
     <span class="detail-badge ${product.inStock ? "in" : "out"}">${product.inStock ? "✓ In Stock" : "× Out of Stock"}</span>
@@ -1630,9 +1196,6 @@ function openProductModal(product){
     ["Brand", product.brand || "ANVI"],
     ["Gender", product.gender || "female"],
     ["Color", product.color || "gold"],
-    ["Sub-Category", product.subCategory || ""],
-    ["Design", product.design || ""],
-    ["Size", product.size || ""],
     ["Category", product.googleCategory || "—"]
   ].filter(([label,value]) => String(value || "").trim());
   meta.innerHTML = metaRows.map(([label,value]) => `
@@ -1683,25 +1246,6 @@ document.addEventListener("keydown", (event) => {
   if(event.key === "Escape" && productModal?.classList.contains("open")) closeProductModal();
 });
 
-const variantBackCategoryBtn = document.getElementById("variantBackCategoryBtn");
-if(variantBackCategoryBtn) variantBackCategoryBtn.addEventListener("click", () => {
-  ACTIVE_SUBCATEGORY = "";
-  ACTIVE_CATEGORY = "All";
-  hideCategoryVariantView();
-  renderFilters();
-  renderProducts();
-});
-
-const variantBackSubcategoryBtn = document.getElementById("variantBackSubcategoryBtn");
-if(variantBackSubcategoryBtn) variantBackSubcategoryBtn.addEventListener("click", () => {
-  ACTIVE_SUBCATEGORY = "";
-  renderSubcategoryTiles(ACTIVE_CATEGORY, getSubCategoryEntries(ACTIVE_CATEGORY));
-});
-
-document.addEventListener("keydown", event => {
-  if(event.key === "Escape" && imageZoomModal?.classList.contains("open")) closeImageZoom();
-});
-
 /* ============================================================
    CART
    ============================================================ */
@@ -1730,8 +1274,7 @@ function addToCart(product){
   }
 
   const available = getAvailableQuantity(product);
-  const cartKey = String(product.cartKey || product.id);
-  const existing = CART.find(i => String(i.cartKey || i.id) === cartKey);
+  const existing = CART.find(i => i.id === product.id);
 
   if(available !== null){
     const currentQty = existing ? Number(existing.qty) : 0;
@@ -1747,8 +1290,8 @@ function addToCart(product){
   openDrawer();
 }
 
-function changeQty(cartKey, delta){
-  const item = CART.find(i => String(i.cartKey || i.id) === String(cartKey));
+function changeQty(id, delta){
+  const item = CART.find(i => i.id === id);
   if(!item) return;
 
   if(delta > 0){
@@ -1760,14 +1303,12 @@ function changeQty(cartKey, delta){
   }
 
   item.qty += delta;
-  const itemKey = String(item.cartKey || item.id);
-  if(item.qty <= 0){ CART = CART.filter(i => String(i.cartKey || i.id) !== itemKey); }
+  if(item.qty <= 0){ CART = CART.filter(i => i.id !== id); }
   renderCart();
 }
 
-function removeFromCart(cartKey){
-  const key = String(cartKey);
-  CART = CART.filter(i => String(i.cartKey || i.id) !== key);
+function removeFromCart(id){
+  CART = CART.filter(i => i.id !== id);
   renderCart();
 }
 
@@ -1799,7 +1340,7 @@ function renderCart(){
       <img src="${item.image}" alt="${item.title}">
       <div class="cart-item-info">
         <div class="t">${item.title}</div>
-        <div class="cat">${item.category === "DiamondReplica" ? "Diamond Replica" : item.category}${item.subCategory ? ` · ${item.subCategory}` : ""}${item.design ? ` · ${item.design}` : ""}${item.size ? ` · Size ${item.size}` : ""}</div>
+        <div class="cat">${item.category === "DiamondReplica" ? "Diamond Replica" : item.category}</div>
         <div class="qty-row">
           <button class="qty-btn" data-act="dec" aria-label="Decrease quantity">−</button>
           <span class="qty-val">${item.qty}</span>
@@ -1810,10 +1351,9 @@ function renderCart(){
       </div>
       <div class="cart-item-price">${CONFIG.CURRENCY_SYMBOL}${item.price * item.qty}</div>
     `;
-    const itemKey = String(item.cartKey || item.id);
-    row.querySelector('[data-act="inc"]').addEventListener("click", () => changeQty(itemKey, 1));
-    row.querySelector('[data-act="dec"]').addEventListener("click", () => changeQty(itemKey, -1));
-    row.querySelector('[data-act="rm"]').addEventListener("click", () => removeFromCart(itemKey));
+    row.querySelector('[data-act="inc"]').addEventListener("click", () => changeQty(item.id, 1));
+    row.querySelector('[data-act="dec"]').addEventListener("click", () => changeQty(item.id, -1));
+    row.querySelector('[data-act="rm"]').addEventListener("click", () => removeFromCart(item.id));
     itemsEl.appendChild(row);
   });
   subtotalEl.textContent = CONFIG.CURRENCY_SYMBOL + subtotal;
@@ -1842,10 +1382,7 @@ let activeOrderTotal = 0;
 
 function getCartTotal(){ return CART.reduce((sum,item)=>sum + Number(item.price||0)*Number(item.qty||0),0); }
 function getOrderItemsText(){
-  return CART.map(item => {
-    const variant = [item.subCategory, item.design, item.size ? `Size ${item.size}` : ""].filter(Boolean).join(" / ");
-    return `${item.title}${variant ? ` [${variant}]` : ""} (Qty: ${item.qty}) - ${CONFIG.CURRENCY_SYMBOL}${Number(item.price||0)*Number(item.qty||0)}`;
-  }).join("\n");
+  return CART.map(item => `${item.title} (Qty: ${item.qty}) - ${CONFIG.CURRENCY_SYMBOL}${Number(item.price||0)*Number(item.qty||0)}`).join("\n");
 }
 async function requestNextOrderNumber(){
   // The Apps Script endpoint reserves a daily sequence centrally, so all customers
