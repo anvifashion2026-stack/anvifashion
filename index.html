@@ -279,6 +279,52 @@ nav.links a:hover::after{width:100%;}
 }
 @keyframes spin{to{transform:rotate(360deg);}}
 
+
+/* -------- Rings variant experience -------- */
+.rings-view{display:none;margin-top:4px;}
+.rings-view.active{display:block;}
+.rings-view-head{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;margin-bottom:24px;}
+.rings-view-head h3{font-size:30px;margin-top:7px;}
+.rings-view-head p{margin-top:7px;color:var(--ink-soft);font-size:13.5px;max-width:620px;}
+.rings-back{padding:9px 16px;border:1px solid var(--line);border-radius:999px;background:#fff;color:var(--ink-soft);font-size:12px;white-space:nowrap;}
+.rings-back:hover{border-color:var(--gold);color:var(--wine);}
+.ring-size-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;}
+.ring-size-tile{background:#fff;border:1px solid var(--line);border-radius:12px;padding:18px;min-width:0;}
+.ring-size-tile.is-empty{opacity:.55;}
+.ring-size-title{display:flex;align-items:baseline;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:14px;}
+.ring-size-title strong{font-family:var(--display);font-size:25px;font-weight:600;color:var(--wine);}
+.ring-size-title span{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);}
+.ring-design-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+.ring-design-card{border:1px solid var(--line);border-radius:8px;background:var(--ivory);overflow:hidden;cursor:pointer;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;display:flex;flex-direction:column;min-width:0;}
+.ring-design-card:hover{transform:translateY(-2px);box-shadow:var(--shadow);border-color:var(--gold);}
+.ring-design-image{aspect-ratio:1/1;background:var(--blush);position:relative;overflow:hidden;}
+.ring-design-image img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;}
+.ring-design-card:hover .ring-design-image img{transform:scale(1.05);}
+.ring-design-zoom{position:absolute;right:7px;bottom:7px;width:28px;height:28px;border-radius:50%;background:rgba(250,246,240,.92);color:var(--wine);display:flex;align-items:center;justify-content:center;border:1px solid var(--line);}
+.ring-design-zoom svg{width:14px;height:14px;}
+.ring-design-info{padding:9px 9px 10px;}
+.ring-design-name{font-size:12px;font-weight:500;line-height:1.35;min-height:32px;color:var(--ink);}
+.ring-design-price{font-family:var(--mono);font-size:11px;color:var(--wine-deep);margin-top:5px;}
+.ring-design-stock{font-size:10px;color:#16804a;margin-top:3px;}
+.ring-empty{padding:26px 10px;text-align:center;color:var(--ink-soft);font-size:12px;border:1px dashed var(--line);border-radius:8px;}
+.ring-size-empty{font-size:11px;color:var(--ink-soft);padding:18px 4px;text-align:center;}
+.image-zoom-modal{position:fixed;inset:0;z-index:240;background:rgba(15,12,14,.82);display:none;align-items:center;justify-content:center;padding:30px;backdrop-filter:blur(5px);}
+.image-zoom-modal.open{display:flex;}
+.image-zoom-stage{width:min(900px,94vw);height:min(86vh,900px);display:flex;align-items:center;justify-content:center;position:relative;}
+.image-zoom-stage img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;box-shadow:0 20px 70px rgba(0,0,0,.45);background:#fff;}
+.image-zoom-close{position:absolute;right:-4px;top:-4px;width:42px;height:42px;border-radius:50%;background:#fff;color:var(--ink);font-size:27px;line-height:1;border:1px solid rgba(0,0,0,.12);box-shadow:0 5px 20px rgba(0,0,0,.25);z-index:2;}
+.image-zoom-caption{position:absolute;left:50%;bottom:-25px;transform:translateX(-50%);color:#fff;font-size:12px;text-align:center;white-space:nowrap;max-width:90vw;overflow:hidden;text-overflow:ellipsis;}
+@media(max-width:1000px){.ring-size-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:600px){
+  .rings-view-head{align-items:flex-start;flex-direction:column;}
+  .ring-size-grid{grid-template-columns:1fr;}
+  .ring-design-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .ring-size-tile{padding:14px;}
+  .image-zoom-modal{padding:18px;}
+  .image-zoom-close{right:0;top:0;}
+  .image-zoom-caption{bottom:-8px;}
+}
+
 /* -------- policy section -------- */
 .policy{background:var(--ivory-dim); padding:70px 0;}
 .policy h2{font-size:32px; text-align:center;}
@@ -428,6 +474,12 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
 .product-detail{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);min-height:560px;}
 .product-detail-media{background:#f8f8fa;min-height:560px;display:flex;align-items:center;justify-content:center;padding:34px;border-radius:24px 0 0 24px;position:relative;}
 .product-detail-media img{width:100%;height:100%;max-height:600px;object-fit:contain;border-radius:18px;}
+.detail-image-button{width:100%;height:100%;min-height:480px;border:0;background:transparent;cursor:zoom-in;padding:0;display:flex;align-items:center;justify-content:center;}
+.detail-image-button img{cursor:zoom-in;}
+.detail-image-button::after{content:'Click to zoom';position:absolute;bottom:18px;left:50%;transform:translateX(-50%);padding:6px 10px;border-radius:999px;background:rgba(255,255,255,.9);color:#5b4f45;font-size:11px;opacity:0;transition:opacity .2s;pointer-events:none;}
+.product-detail-media:hover .detail-image-button::after{opacity:1;}
+@media(max-width:760px){.detail-image-button{min-height:290px;}}
+
 .product-detail-info{padding:48px 42px 42px;}
 .product-detail-kicker{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:#9a8192;margin-bottom:12px;}
 .product-detail-info h2{font-family:var(--display);font-size:clamp(28px,3vw,42px);line-height:1.05;margin:0 42px 16px 0;color:#101827;}
@@ -597,6 +649,19 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
         Loading products from the catalogue…
       </div>
     </div>
+
+    <!-- Rings variant page: category -> size -> design -->
+    <div class="rings-view" id="ringsView" aria-live="polite">
+      <div class="rings-view-head">
+        <div>
+          <div class="eyebrow" id="ringsViewEyebrow">Rings</div>
+          <h3 id="ringsViewTitle">Select your ring size</h3>
+          <p>Choose a size to see the available designs. Each design can be opened for a larger image and added directly to your cart.</p>
+        </div>
+        <button class="rings-back" id="ringsBackBtn" type="button">← Back to Categories</button>
+      </div>
+      <div class="ring-size-grid" id="ringSizeGrid"></div>
+    </div>
   </div>
 </section>
 
@@ -620,6 +685,15 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
         </div>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- ================= IMAGE ZOOM ================= -->
+<div class="image-zoom-modal" id="imageZoomModal" aria-hidden="true">
+  <div class="image-zoom-stage" role="dialog" aria-modal="true" aria-label="Product image zoom">
+    <button class="image-zoom-close" id="imageZoomClose" type="button" aria-label="Close image zoom">&times;</button>
+    <img id="imageZoomImg" src="" alt="">
+    <div class="image-zoom-caption" id="imageZoomCaption"></div>
   </div>
 </div>
 
@@ -826,6 +900,8 @@ const SAMPLE_PRODUCTS = [
 let ALL_PRODUCTS = [];
 let ACTIVE_CATEGORY = "All";
 let PRODUCT_SEARCH_TERM = "";
+let ACTIVE_RING_CATEGORY = "";
+const RING_SIZES = ["5", "6", "7", "8"];
 let CART = []; // { id, title, price, category, image, qty }
 
 /* ============================================================
@@ -936,7 +1012,9 @@ const idx = {
   condition: find(["condition"]),
   brand: find(["brand", "org name"]),
   gender: find(["gender"]),
-  color: find(["color"])
+  color: find(["color"]),
+  size: find(["size", "ring size", "product size", "variant size"]),
+  design: find(["design", "design name", "variant", "variant name", "style", "design code"])
 };
 if(idx.googleCategory < 0) {
   throw new Error(
@@ -957,6 +1035,30 @@ if(idx.googleCategory < 0) {
       const cleaned = String(value ?? "").replace(/,/g, "");
       const match = cleaned.match(/-?\d+(?:\.\d+)?/);
       return match ? Number(match[0]) : 0;
+    };
+
+    const normalizeRingSize = value => {
+      const raw = String(value ?? "").trim();
+      const match = raw.match(/(?:size\s*)?(5|6|7|8)(?:\s*(?:us|uk))?$/i);
+      return match ? match[1] : "";
+    };
+    const deriveRingSize = (sizeValue, title) => {
+      const explicit = normalizeRingSize(sizeValue);
+      if(explicit) return explicit;
+      const raw = String(title || "");
+      const match = raw.match(/(?:size|sz)[\s:_-]*(5|6|7|8)(?!\d)/i);
+      return match ? match[1] : "";
+    };
+    const deriveRingDesign = (designValue, title, size) => {
+      const explicit = String(designValue ?? "").trim();
+      if(explicit) return explicit;
+      let name = String(title || "").trim();
+      if(size) {
+        const escaped = size.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        name = name.replace(new RegExp(`(?:\\s*[-|/]?\\s*)?(?:size|sz)[\\s:_-]*${escaped}(?:\\s*(?:us|uk))?\\b`, "ig"), "");
+        name = name.replace(new RegExp(`(?:\\s*[-|/]?\\s*)?\\b${escaped}\\b(?=\\s*$)`, "i"), "");
+      }
+      return name.replace(/\s{2,}/g, " ").replace(/[|_-]+\s*$/g, "").trim() || title || "Design";
     };
 
     const sheetProducts = dataRows.map((row, i) => {
@@ -989,6 +1091,8 @@ return {
   brand: String(cell(row, idx.brand) || "ANVI"),
   gender: String(cell(row, idx.gender) || "female"),
   color: String(cell(row, idx.color) || "gold"),
+  size: deriveRingSize(cell(row, idx.size), title),
+  design: deriveRingDesign(cell(row, idx.design), title, deriveRingSize(cell(row, idx.size), title)),
   quantity,
   inStock: !explicitlyOut
 };
@@ -1064,6 +1168,8 @@ function renderFilters(){
 
     btn.addEventListener("click", () => {
       ACTIVE_CATEGORY = cat;
+      PRODUCT_SEARCH_TERM = "";
+      if(productSearchInput) productSearchInput.value = "";
       renderFilters();
       renderProducts();
     });
@@ -1078,8 +1184,88 @@ if(productSearchInput){
     renderProducts();
   });
 }
+function isRingCategory(category){
+  return /^rings\s*-\s*(single|bold|combo)$/i.test(String(category || "").trim());
+}
+
+function showRingsView(category){
+  const grid = document.getElementById("productGrid");
+  const view = document.getElementById("ringsView");
+  if(!view) return;
+  ACTIVE_RING_CATEGORY = category;
+  if(grid) grid.style.display = "none";
+  view.classList.add("active");
+  document.getElementById("ringsViewEyebrow").textContent = category;
+  document.getElementById("ringsViewTitle").textContent = `Choose a size — ${category}`;
+  renderRingVariants(category);
+}
+
+function hideRingsView(){
+  const grid = document.getElementById("productGrid");
+  const view = document.getElementById("ringsView");
+  ACTIVE_RING_CATEGORY = "";
+  if(view) view.classList.remove("active");
+  if(grid) grid.style.display = "grid";
+}
+
+function renderRingVariants(category){
+  const wrap = document.getElementById("ringSizeGrid");
+  if(!wrap) return;
+  const products = ALL_PRODUCTS.filter(p => String(p.googleCategory || "").trim().toLowerCase() === String(category || "").trim().toLowerCase());
+  wrap.innerHTML = RING_SIZES.map(size => {
+    const sizeProducts = products.filter(p => String(p.size || "") === size);
+    const seen = new Map();
+    sizeProducts.forEach(p => {
+      const key = String(p.design || p.title || p.id).trim().toLowerCase();
+      if(!seen.has(key)) seen.set(key, p);
+    });
+    const designs = [...seen.values()];
+    const content = designs.length ? designs.map(p => `
+      <article class="ring-design-card" data-product-id="${escapeHtml(p.id)}" tabindex="0" role="button" aria-label="View ${escapeHtml(p.design || p.title)}, size ${escapeHtml(size)}">
+        <div class="ring-design-image">
+          ${p.image ? `<img src="${escapeHtml(p.image)}" alt="${escapeHtml(p.design || p.title)}" loading="lazy">` : `<div class="no-image" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:24px;color:var(--wine);">ANVI</div>`}
+          ${p.image ? `<span class="ring-design-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 5 5M10.8 8v5.6M8 10.8h5.6"/></svg></span>` : ""}
+        </div>
+        <div class="ring-design-info">
+          <div class="ring-design-name">${escapeHtml(p.design || p.title)}</div>
+          <div class="ring-design-price">${CONFIG.CURRENCY_SYMBOL}${(Number(p.price) || 0).toLocaleString("en-IN")}</div>
+          <div class="ring-design-stock">${p.inStock ? (getAvailableQuantity(p) !== null ? `${getAvailableQuantity(p)} available` : "Available") : "Out of stock"}</div>
+        </div>
+      </article>`).join("") : `<div class="ring-size-empty">No designs available in size ${escapeHtml(size)}</div>`;
+    return `<section class="ring-size-tile${designs.length ? "" : " is-empty"}">
+      <div class="ring-size-title"><strong>Size ${escapeHtml(size)}</strong><span>${designs.length} design${designs.length === 1 ? "" : "s"}</span></div>
+      <div class="ring-design-grid">${content}</div>
+    </section>`;
+  }).join("");
+
+  wrap.querySelectorAll(".ring-design-card").forEach(card => {
+    const product = products.find(p => String(p.id) === String(card.dataset.productId));
+    if(!product) return;
+    card.addEventListener("click", event => {
+      if(event.target.closest(".ring-design-zoom")) {
+        openImageZoom(product.image, product.design || product.title);
+        return;
+      }
+      openProductModal(product);
+    });
+    card.addEventListener("keydown", event => {
+      if(event.key === "Enter" || event.key === " "){ event.preventDefault(); openProductModal(product); }
+    });
+    const image = card.querySelector("img");
+    if(image) image.addEventListener("click", event => {
+      event.stopPropagation();
+      openImageZoom(product.image, product.design || product.title);
+    });
+  });
+}
+
 function renderProducts(){
   const grid = document.getElementById("productGrid");
+  if(isRingCategory(ACTIVE_CATEGORY)){
+    showRingsView(ACTIVE_CATEGORY);
+    return;
+  }
+  hideRingsView();
   const categoryProducts = ACTIVE_CATEGORY === "All"
   ? ALL_PRODUCTS
   : ALL_PRODUCTS.filter(p => p.googleCategory === ACTIVE_CATEGORY);
@@ -1156,6 +1342,33 @@ function renderProducts(){
   });
 }
 
+function openImageZoom(image, caption){
+  if(!image) return;
+  const modal = document.getElementById("imageZoomModal");
+  const img = document.getElementById("imageZoomImg");
+  const cap = document.getElementById("imageZoomCaption");
+  if(!modal || !img) return;
+  img.src = image;
+  img.alt = caption || "Product image";
+  if(cap) cap.textContent = caption || "";
+  modal.classList.add("open");
+  modal.setAttribute("aria-hidden", "false");
+}
+function closeImageZoom(){
+  const modal = document.getElementById("imageZoomModal");
+  if(!modal) return;
+  modal.classList.remove("open");
+  modal.setAttribute("aria-hidden", "true");
+  const img = document.getElementById("imageZoomImg");
+  if(img) img.src = "";
+}
+const imageZoomModal = document.getElementById("imageZoomModal");
+const imageZoomClose = document.getElementById("imageZoomClose");
+if(imageZoomClose) imageZoomClose.addEventListener("click", closeImageZoom);
+if(imageZoomModal) imageZoomModal.addEventListener("click", event => {
+  if(event.target === imageZoomModal) closeImageZoom();
+});
+
 function formatStock(product){
   if(product.quantity !== null && !Number.isNaN(product.quantity)){
     return product.quantity > 0 ? `${product.quantity} available` : "0 available";
@@ -1181,8 +1394,10 @@ function openProductModal(product){
   description.textContent = product.description || "Beautifully selected by ANVI Fashion Jewellery. Please contact us on WhatsApp for more product information.";
 
   media.innerHTML = product.image
-    ? `<img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">`
+    ? `<button type="button" class="detail-image-button" aria-label="Zoom ${escapeHtml(product.title)}"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');"></button>`
     : `<div style="font-family:var(--display);font-size:42px;color:var(--wine);">ANVI</div>`;
+  const detailImageButton = media.querySelector(".detail-image-button");
+  if(detailImageButton) detailImageButton.addEventListener("click", () => openImageZoom(product.image, product.title));
 
   status.innerHTML = `
     <span class="detail-badge ${product.inStock ? "in" : "out"}">${product.inStock ? "✓ In Stock" : "× Out of Stock"}</span>
@@ -1244,6 +1459,18 @@ if(productModal) productModal.addEventListener("click", (event) => {
 });
 document.addEventListener("keydown", (event) => {
   if(event.key === "Escape" && productModal?.classList.contains("open")) closeProductModal();
+});
+
+const ringsBackBtn = document.getElementById("ringsBackBtn");
+if(ringsBackBtn) ringsBackBtn.addEventListener("click", () => {
+  ACTIVE_CATEGORY = "All";
+  hideRingsView();
+  renderFilters();
+  renderProducts();
+});
+
+document.addEventListener("keydown", event => {
+  if(event.key === "Escape" && imageZoomModal?.classList.contains("open")) closeImageZoom();
 });
 
 /* ============================================================
