@@ -924,7 +924,7 @@ let ACTIVE_CATEGORY = "All";
 let PRODUCT_SEARCH_TERM = "";
 let ACTIVE_SUBCATEGORY = "";
 const RING_SIZES = ["5", "6", "7", "8"];
-let CART = []; // { id, title, price, category, image, qty }
+let CART = []; // { id, cartKey, title, price, category, image, qty }
 
 /* ============================================================
    PRODUCT LOADING — Google Sheets (gviz JSON, no key/CORS issues)
@@ -1091,8 +1091,15 @@ if(idx.googleCategory < 0) {
       const quantity = quantityRaw === "" ? null : Number(quantityRaw);
       const explicitlyOut = ["out of stock", "unavailable", "sold out", "outofstock"].includes(availability)
         || (quantity !== null && !Number.isNaN(quantity) && quantity <= 0);
-return {
-  id: String(cell(row, idx.id) || `g${i}`),
+const sourceId = String(cell(row, idx.id) || `g${i}`).trim();
+      const subCategory = String(cell(row, idx.subCategory) || "").trim();
+      const size = deriveRingSize(cell(row, idx.size));
+      const design = deriveRingDesign(cell(row, idx.design), title);
+
+      return {
+  id: sourceId,
+  // Internal key keeps different sizes separate even if the source ID/SKU is repeated.
+  cartKey: `${sourceId}__${normalizeCategory(category)}__${subCategory.toLowerCase()}__${design.toLowerCase()}__${size || "nosize"}`,
   title,
   description: String(cell(row, idx.description) || ""),
   price,
@@ -1110,9 +1117,9 @@ return {
   brand: String(cell(row, idx.brand) || "ANVI"),
   gender: String(cell(row, idx.gender) || "female"),
   color: String(cell(row, idx.color) || "gold"),
-  subCategory: String(cell(row, idx.subCategory) || "").trim(),
-  size: deriveRingSize(cell(row, idx.size)),
-  design: deriveRingDesign(cell(row, idx.design), title),
+  subCategory,
+  size,
+  design,
   quantity,
   inStock: !explicitlyOut
 };
@@ -1386,7 +1393,7 @@ function renderVariantProducts(products, isRing){
           const variant = sorted.find(v => normalizeRingSize(v.size) === size);
           const available = !!variant && !!variant.inStock;
           const qty = variant ? getAvailableQuantity(variant) : null;
-          return `<button type="button" class="variant-size-btn${available ? "" : ""}" data-size="${size}" data-variant-id="${variant ? escapeHtml(variant.id) : ""}" ${available ? "" : "disabled"} title="${available ? `Size ${size}${qty !== null ? ` — ${qty} available` : " available"}` : `Size ${size} unavailable`}">${size}</button>`;
+          return `<button type="button" class="variant-size-btn" data-size="${size}" data-variant-key="${variant ? escapeHtml(variant.cartKey || variant.id) : ""}" ${available ? "" : "disabled"} title="${available ? `Size ${size}${qty !== null ? ` — ${qty} available` : " available"}` : `Size ${size} unavailable`}">${size}</button>`;
         }).join("")
       : "";
     const groupKey = String(design).trim().toLowerCase();
@@ -1412,11 +1419,16 @@ function renderVariantProducts(products, isRing){
     const groupKey = card.dataset.groupKey || "";
     const variantList = groups.get(groupKey) || [];
     const addBtn = card.querySelector(".variant-add-btn");
+    const variantBySize = new Map();
+    variantList.forEach(v => {
+      const sizeKey = normalizeRingSize(v.size);
+      if(sizeKey && !variantBySize.has(sizeKey)) variantBySize.set(sizeKey, v);
+    });
     let selectedVariant = null;
 
     const refresh = () => {
       card.querySelectorAll(".variant-size-btn").forEach(btn => {
-        btn.classList.toggle("selected", selectedVariant && btn.dataset.variantId === String(selectedVariant.id));
+        btn.classList.toggle("selected", !!selectedVariant && btn.dataset.size === normalizeRingSize(selectedVariant.size));
       });
       if(addBtn){
         addBtn.disabled = !selectedVariant || !selectedVariant.inStock;
@@ -1438,8 +1450,9 @@ function renderVariantProducts(products, isRing){
       btn.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
-        const id = btn.dataset.variantId;
-        selectedVariant = variantList.find(v => String(v.id) === String(id)) || null;
+        const size = normalizeRingSize(btn.dataset.size);
+        // Use the selected size within this design, rather than looking up by ID/SKU.
+        selectedVariant = variantBySize.get(size) || null;
         refresh();
       });
     });
@@ -1717,7 +1730,8 @@ function addToCart(product){
   }
 
   const available = getAvailableQuantity(product);
-  const existing = CART.find(i => i.id === product.id);
+  const cartKey = String(product.cartKey || product.id);
+  const existing = CART.find(i => String(i.cartKey || i.id) === cartKey);
 
   if(available !== null){
     const currentQty = existing ? Number(existing.qty) : 0;
@@ -1733,8 +1747,8 @@ function addToCart(product){
   openDrawer();
 }
 
-function changeQty(id, delta){
-  const item = CART.find(i => i.id === id);
+function changeQty(cartKey, delta){
+  const item = CART.find(i => String(i.cartKey || i.id) === String(cartKey));
   if(!item) return;
 
   if(delta > 0){
@@ -1746,12 +1760,14 @@ function changeQty(id, delta){
   }
 
   item.qty += delta;
-  if(item.qty <= 0){ CART = CART.filter(i => i.id !== id); }
+  const itemKey = String(item.cartKey || item.id);
+  if(item.qty <= 0){ CART = CART.filter(i => String(i.cartKey || i.id) !== itemKey); }
   renderCart();
 }
 
-function removeFromCart(id){
-  CART = CART.filter(i => i.id !== id);
+function removeFromCart(cartKey){
+  const key = String(cartKey);
+  CART = CART.filter(i => String(i.cartKey || i.id) !== key);
   renderCart();
 }
 
@@ -1794,9 +1810,10 @@ function renderCart(){
       </div>
       <div class="cart-item-price">${CONFIG.CURRENCY_SYMBOL}${item.price * item.qty}</div>
     `;
-    row.querySelector('[data-act="inc"]').addEventListener("click", () => changeQty(item.id, 1));
-    row.querySelector('[data-act="dec"]').addEventListener("click", () => changeQty(item.id, -1));
-    row.querySelector('[data-act="rm"]').addEventListener("click", () => removeFromCart(item.id));
+    const itemKey = String(item.cartKey || item.id);
+    row.querySelector('[data-act="inc"]').addEventListener("click", () => changeQty(itemKey, 1));
+    row.querySelector('[data-act="dec"]').addEventListener("click", () => changeQty(itemKey, -1));
+    row.querySelector('[data-act="rm"]').addEventListener("click", () => removeFromCart(itemKey));
     itemsEl.appendChild(row);
   });
   subtotalEl.textContent = CONFIG.CURRENCY_SYMBOL + subtotal;
