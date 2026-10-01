@@ -514,6 +514,16 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
 .detail-badge.in{background:#e7f8ee;color:#128448;}
 .detail-badge.out{background:#fdebec;color:#b4232e;}
 .detail-stock{font-size:14px;color:#526071;}
+.detail-quantity-box{margin-top:16px;padding:13px 14px;border:1px solid var(--line);border-radius:8px;background:rgba(248,246,242,.72);}
+.detail-quantity-head{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:12px;font-weight:600;color:var(--ink);margin-bottom:10px;}
+.detail-quantity-available{font-family:var(--mono);font-size:10px;color:var(--ink-soft);font-weight:500;}
+.detail-quantity-controls{display:flex;align-items:center;gap:12px;}
+.detail-qty-btn{width:34px;height:34px;border:1px solid var(--line);border-radius:6px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;line-height:1;cursor:pointer;}
+.detail-qty-btn:hover{border-color:var(--gold);}
+.detail-qty-btn:disabled{opacity:.45;cursor:not-allowed;}
+.detail-qty-value{min-width:24px;text-align:center;font-family:var(--mono);font-size:14px;font-weight:600;}
+.detail-quantity-error{min-height:17px;margin-top:7px;font-size:11px;line-height:1.35;color:#a72828;font-weight:600;}
+
 .detail-description{font-size:15px;line-height:1.75;color:#455164;margin:0 0 24px;white-space:pre-line;}
 .detail-meta{border-top:1px solid #eceef2;border-bottom:1px solid #eceef2;margin:0 0 24px;}
 .detail-meta-row{display:flex;justify-content:space-between;gap:20px;padding:12px 0;font-size:14px;}
@@ -708,6 +718,18 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
         <div class="detail-status-row" id="detailStatusRow"></div>
         <p class="detail-description" id="detailDescription"></p>
         <div class="detail-meta" id="detailMeta"></div>
+        <div class="detail-quantity-box" id="detailQuantityBox">
+          <div class="detail-quantity-head">
+            <span>Quantity</span>
+            <span class="detail-quantity-available" id="detailQuantityAvailable"></span>
+          </div>
+          <div class="detail-quantity-controls">
+            <button type="button" class="detail-qty-btn" id="detailQtyMinus" aria-label="Decrease quantity">−</button>
+            <span class="detail-qty-value" id="detailQtyValue">1</span>
+            <button type="button" class="detail-qty-btn" id="detailQtyPlus" aria-label="Increase quantity">+</button>
+          </div>
+          <div class="detail-quantity-error" id="detailQuantityError" role="alert" aria-live="polite"></div>
+        </div>
         <div class="detail-actions">
           <button class="detail-add" id="detailAddBtn">Add to Cart</button>
           <button class="detail-buy" id="detailBuyBtn">Buy Now</button>
@@ -930,7 +952,7 @@ let ALL_PRODUCTS = [];
 let ACTIVE_CATEGORY = "All";
 let PRODUCT_SEARCH_TERM = "";
 let ACTIVE_SUBCATEGORY = "";
-const RING_SIZES = ["5", "6", "7", "8"];
+const RING_SIZES = ["5", "6", "7", "8", "Free"];
 let CART = []; // { id, cartKey, title, price, category, image, qty }
 
 /* ============================================================
@@ -975,6 +997,7 @@ function formatCatalogueLabel(value){
 
 function normalizeRingSize(value){
   const raw = String(value ?? "").trim();
+  if(/^free\s*size$/i.test(raw) || /^free$/i.test(raw)) return "Free";
   const match = raw.match(/(?:size\s*)?(5|6|7|8)(?:\s*(?:us|uk))?$/i);
   return match ? match[1] : "";
 }
@@ -1468,9 +1491,16 @@ function renderVariantProducts(products, isRing){
   // the DOM. The actual product objects remain in this render's closure, which
   // prevents one card from ever resolving to another card's variants.
   wrap.innerHTML = groups.map((group, groupIndex) => {
-    const variants = [...group.variants].sort((a,b) =>
-      String(a.size || "").localeCompare(String(b.size || ""), "en", {numeric:true})
-    );
+    const sizeOrder = value => {
+      const size = normalizeRingSize(value);
+      const index = RING_SIZES.indexOf(size);
+      return index >= 0 ? index : 999;
+    };
+    const variants = [...group.variants].sort((a,b) => {
+      const orderDiff = sizeOrder(a.size) - sizeOrder(b.size);
+      if(orderDiff !== 0) return orderDiff;
+      return String(a.size || "").localeCompare(String(b.size || ""), "en", {numeric:true});
+    });
     const primary = variants.find(v => v.inStock && v.image) || variants.find(v => v.image) || variants[0];
     const title = String(primary.title || group.design || "Product").trim();
     const priceVariant = variants.find(v => Number(v.price) > 0) || primary;
@@ -1736,6 +1766,12 @@ function openProductModal(product){
   const status = document.getElementById("detailStatusRow");
   const description = document.getElementById("detailDescription");
   const meta = document.getElementById("detailMeta");
+  const qtyBox = document.getElementById("detailQuantityBox");
+  const qtyAvailable = document.getElementById("detailQuantityAvailable");
+  const qtyValue = document.getElementById("detailQtyValue");
+  const qtyMinus = document.getElementById("detailQtyMinus");
+  const qtyPlus = document.getElementById("detailQtyPlus");
+  const qtyError = document.getElementById("detailQuantityError");
   const addBtn = document.getElementById("detailAddBtn");
   const buyBtn = document.getElementById("detailBuyBtn");
 
@@ -1745,15 +1781,18 @@ function openProductModal(product){
   description.textContent = product.description || "Beautifully selected by ANVI Fashion Jewellery. Please contact us on WhatsApp for more product information.";
 
   media.innerHTML = product.image
-    ? `<button type="button" class="detail-image-button" aria-label="Zoom ${escapeHtml(product.title)}"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');"></button>`
+    ? `<button type="button" class="detail-image-button" aria-label="View ${escapeHtml(product.title)}"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.title)}" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');"></button>`
     : `<div style="font-family:var(--display);font-size:42px;color:var(--wine);">ANVI</div>`;
   const detailImageButton = media.querySelector(".detail-image-button");
   if(detailImageButton) detailImageButton.addEventListener("click", () => openImageZoom(product.image, product.title));
 
+  const available = getAvailableQuantity(product);
+  const inStock = !!product.inStock && (available === null || available > 0);
+
   status.innerHTML = `
-    <span class="detail-badge ${product.inStock ? "in" : "out"}">${product.inStock ? "✓ In Stock" : "× Out of Stock"}</span>
+    <span class="detail-badge ${inStock ? "in" : "out"}">${inStock ? "✓ In Stock" : "× Out of Stock"}</span>
     <span class="detail-stock">${escapeHtml(formatStock(product))}</span>
-    ${getAvailableQuantity(product) !== null && getAvailableQuantity(product) > 0 ? `<span class="detail-stock">Only ${getAvailableQuantity(product)} quantity is available to order.</span>` : ""}
+    ${available !== null && available > 0 ? `<span class="detail-stock">Only ${available} quantity is available to order.</span>` : ""}
   `;
 
   const metaRows = [
@@ -1772,27 +1811,83 @@ function openProductModal(product){
     <div class="detail-meta-row"><span class="detail-meta-label">${escapeHtml(label)}</span><span class="detail-meta-value">${escapeHtml(value)}</span></div>
   `).join("");
 
-  addBtn.disabled = !product.inStock;
-  addBtn.textContent = product.inStock ? "Add to Cart" : "Out of Stock";
+  let selectedQty = 1;
+  const getExistingQty = () => {
+    const cartKey = String(product.cartKey || product.id);
+    const existing = CART.find(item => String(item.cartKey || item.id) === cartKey);
+    return existing ? Number(existing.qty) || 0 : 0;
+  };
+  const getRemainingQty = () => {
+    if(available === null) return null;
+    return Math.max(0, available - getExistingQty());
+  };
+  const setQtyError = message => {
+    if(qtyError) qtyError.textContent = message || "";
+  };
+  const refreshQuantityUI = () => {
+    const remaining = getRemainingQty();
+    const maxQty = remaining === null ? 99 : remaining;
+    if(selectedQty < 1) selectedQty = 1;
+    if(maxQty > 0 && selectedQty > maxQty) selectedQty = maxQty;
+    if(qtyValue) qtyValue.textContent = String(selectedQty);
+    if(qtyAvailable) qtyAvailable.textContent = available !== null
+      ? `${remaining} remaining to order${getExistingQty() > 0 ? ` (${getExistingQty()} already in cart)` : ""}`
+      : "Quantity available as stock permits";
+    if(qtyMinus) qtyMinus.disabled = !inStock || selectedQty <= 1;
+    if(qtyPlus) qtyPlus.disabled = !inStock || (remaining !== null && selectedQty >= remaining);
+    if(qtyBox) qtyBox.style.opacity = inStock ? "1" : ".55";
+    if(!inStock) setQtyError("This product is currently out of stock.");
+    else if(remaining !== null && remaining <= 0) setQtyError(`Only ${available} quantity is available, and ${getExistingQty()} is already in your cart.`);
+    else setQtyError("");
+
+    const canOrder = inStock && (remaining === null || remaining > 0);
+    addBtn.disabled = !canOrder;
+    buyBtn.disabled = !canOrder;
+    buyBtn.style.opacity = canOrder ? "1" : ".55";
+  };
+
+  if(available !== null && available > 0) selectedQty = 1;
+  if(qtyMinus) qtyMinus.onclick = () => {
+    if(selectedQty > 1){ selectedQty -= 1; refreshQuantityUI(); }
+  };
+  if(qtyPlus) qtyPlus.onclick = () => {
+    const remaining = getRemainingQty();
+    if(remaining !== null && selectedQty >= remaining){
+      setQtyError(`Only ${available} quantity is available. You can order only ${remaining} more.`);
+      return;
+    }
+    selectedQty += 1;
+    refreshQuantityUI();
+  };
+
   addBtn.onclick = () => {
-    if(!product.inStock) return;
-    addToCart(product);
+    const remaining = getRemainingQty();
+    if(!inStock) return;
+    if(remaining !== null && selectedQty > remaining){
+      setQtyError(`Only ${available} quantity is available. You can order only ${remaining} more.`);
+      return;
+    }
+    if(!addQuantityToCart(product, selectedQty)) return;
     closeProductModal();
   };
-  buyBtn.disabled = !product.inStock;
-  buyBtn.style.opacity = product.inStock ? "1" : ".55";
   buyBtn.onclick = () => {
-    if(!product.inStock) return;
-    addToCart(product);
+    const remaining = getRemainingQty();
+    if(!inStock) return;
+    if(remaining !== null && selectedQty > remaining){
+      setQtyError(`Only ${available} quantity is available. You can order only ${remaining} more.`);
+      return;
+    }
+    if(!addQuantityToCart(product, selectedQty)) return;
     closeProductModal();
     setTimeout(() => document.getElementById("checkoutBtn")?.click(), 100);
   };
+
+  refreshQuantityUI();
 
   modal.classList.add("open");
   modal.setAttribute("aria-hidden", "false");
   document.body.style.overflow = "hidden";
 }
-
 function closeProductModal(){
   const modal = document.getElementById("productModal");
   if(!modal) return;
@@ -1856,28 +1951,33 @@ function showQuantityLimitError(product){
   return true;
 }
 
-function addToCart(product){
-  if(!product.inStock){
+function addQuantityToCart(product, requestedQty){
+  if(!product?.inStock){
     alert("This product is currently out of stock.");
-    return;
+    return false;
   }
 
+  const qtyToAdd = Math.max(1, Math.floor(Number(requestedQty) || 1));
   const available = getAvailableQuantity(product);
   const cartKey = String(product.cartKey || product.id);
   const existing = CART.find(i => String(i.cartKey || i.id) === cartKey);
+  const currentQty = existing ? Number(existing.qty) || 0 : 0;
 
-  if(available !== null){
-    const currentQty = existing ? Number(existing.qty) : 0;
-    if(currentQty >= available){
-      showQuantityLimitError(product);
-      return;
-    }
+  if(available !== null && currentQty + qtyToAdd > available){
+    const remaining = Math.max(0, available - currentQty);
+    alert(`Only ${available} quantity is available to order. You can add only ${remaining} more.`);
+    return false;
   }
 
-  if(existing){ existing.qty += 1; }
-  else{ CART.push({ ...product, qty: 1 }); }
+  if(existing){ existing.qty += qtyToAdd; }
+  else{ CART.push({ ...product, qty: qtyToAdd }); }
   renderCart();
   openDrawer();
+  return true;
+}
+
+function addToCart(product){
+  return addQuantityToCart(product, 1);
 }
 
 function changeQty(cartKey, delta){
