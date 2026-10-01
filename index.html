@@ -1429,9 +1429,13 @@ function renderVariantProducts(products, isRing){
     </article>`;
   }).join("");
 
-  wrap.querySelectorAll(".variant-product-card").forEach(card => {
-    const groupKey = card.dataset.groupKey || "";
-    const variantList = groups.get(groupKey) || [];
+  // Important: bind each rendered card to its exact group by render order.
+  // Do not read the group back from data-group-key because HTML escaping can
+  // change the string (for example design names containing & or quotes) and
+  // cause later cards to lose their variant list.
+  const renderedCards = Array.from(wrap.querySelectorAll(".variant-product-card"));
+  renderedCards.forEach((card, cardIndex) => {
+    const variantList = [...groups.values()][cardIndex] || [];
     const addBtn = card.querySelector(".variant-add-btn");
     const variantBySize = new Map();
     variantList.forEach(v => {
@@ -1442,7 +1446,9 @@ function renderVariantProducts(products, isRing){
 
     const refresh = () => {
       card.querySelectorAll(".variant-size-btn").forEach(btn => {
-        btn.classList.toggle("selected", !!selectedVariant && btn.dataset.size === normalizeRingSize(selectedVariant.size));
+        const isSelected = !!selectedVariant && btn.dataset.size === normalizeRingSize(selectedVariant.size);
+        btn.classList.toggle("selected", isSelected);
+        btn.setAttribute("aria-pressed", isSelected ? "true" : "false");
       });
       if(addBtn){
         addBtn.disabled = !selectedVariant || !selectedVariant.inStock;
@@ -1464,9 +1470,15 @@ function renderVariantProducts(products, isRing){
       btn.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
+        if(btn.disabled) return;
+
+        // The button belongs to this card only, so the lookup cannot affect
+        // another design card. Always resolve the exact size row in this card.
         const size = normalizeRingSize(btn.dataset.size);
-        // Use the selected size within this design, rather than looking up by ID/SKU.
-        selectedVariant = variantBySize.get(size) || null;
+        const nextVariant = variantBySize.get(size) || null;
+        if(!nextVariant || !nextVariant.inStock) return;
+
+        selectedVariant = nextVariant;
         refresh();
       });
     });
