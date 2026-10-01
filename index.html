@@ -296,6 +296,15 @@ nav.links a:hover::after{width:100%;}
 .subcategory-image{aspect-ratio:1/1;background:var(--blush);position:relative;overflow:hidden;}
 .subcategory-image img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;}
 .subcategory-card:hover .subcategory-image img{transform:scale(1.05);}
+
+/* Rings: use a visual collage made from multiple product images for each sub-category. */
+.subcategory-image.rings-collage{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:repeat(2,minmax(0,1fr));gap:2px;background:var(--line);}
+.subcategory-image.rings-collage .collage-item{position:relative;min-width:0;min-height:0;overflow:hidden;background:var(--blush);}
+.subcategory-image.rings-collage .collage-item img{display:block;width:100%;height:100%;object-fit:cover;transition:transform .35s ease;}
+.subcategory-card:hover .subcategory-image.rings-collage .collage-item img{transform:scale(1.04);}
+.subcategory-image.rings-collage.count-3 .collage-item:first-child{grid-row:1 / span 2;}
+.subcategory-image.rings-collage.count-2 .collage-item:first-child{grid-column:1;}
+.subcategory-image.rings-collage.count-2 .collage-item:last-child{grid-column:2;}
 .subcategory-info{padding:15px 16px 17px;}
 .subcategory-name{font-family:var(--display);font-size:23px;color:var(--wine);}
 .subcategory-count{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-top:5px;}
@@ -1317,11 +1326,64 @@ function renderSubcategoryTiles(category, entries){
   productGrid.style.display = "none";
 
   subGrid.innerHTML = entries.map(entry => {
-    const preview = entry.products.find(p => p.image)?.image || "";
+    const previewImages = [];
+    const seenImages = new Set();
+
+    // For Rings, build the sub-category cover from up to 4 distinct product images.
+    // Prefer different design images rather than repeating the same image for each size row.
+    if(isRingsGoogleCategory(category)){
+      const candidates = [];
+      const seenDesigns = new Set();
+
+      entry.products.forEach(p => {
+        const image = String(p.image || "").trim();
+        if(!image) return;
+        const designKey = String(p.design || p.title || p.id || "").trim().toLowerCase();
+        const imageKey = image.toLowerCase();
+
+        if(seenDesigns.has(designKey) && seenImages.has(imageKey)) return;
+        candidates.push({image, designKey, imageKey});
+      });
+
+      // First pass: one image per design.
+      candidates.forEach(item => {
+        if(previewImages.length >= 4) return;
+        if(item.designKey && seenDesigns.has(item.designKey)) return;
+        if(seenImages.has(item.imageKey)) return;
+        previewImages.push(item.image);
+        if(item.designKey) seenDesigns.add(item.designKey);
+        seenImages.add(item.imageKey);
+      });
+
+      // Second pass: fill remaining collage slots with other distinct images.
+      if(previewImages.length < 4){
+        entry.products.forEach(p => {
+          if(previewImages.length >= 4) return;
+          const image = String(p.image || "").trim();
+          const imageKey = image.toLowerCase();
+          if(image && !seenImages.has(imageKey)){
+            previewImages.push(image);
+            seenImages.add(imageKey);
+          }
+        });
+      }
+    }else{
+      const preview = entry.products.find(p => p.image)?.image || "";
+      if(preview) previewImages.push(preview);
+    }
+
     const designCount = new Set(entry.products.map(p => String(p.design || p.title || p.id).trim().toLowerCase()).filter(Boolean)).size;
+    const isRingsCollage = isRingsGoogleCategory(category) && previewImages.length >= 2;
+    const collageClass = isRingsCollage ? ` rings-collage count-${Math.min(previewImages.length,4)}` : "";
+    const imageContent = previewImages.length
+      ? (isRingsCollage
+          ? previewImages.slice(0,4).map((image, i) => `<div class="collage-item"><img src="${escapeHtml(image)}" alt="${escapeHtml(entry.name)} ring ${i+1}" loading="lazy" onerror="this.parentElement.style.display='none';"></div>`).join("")
+          : `<img src="${escapeHtml(previewImages[0])}" alt="${escapeHtml(entry.name)}" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">`)
+      : `<div class="no-image" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:34px;color:var(--wine);">ANVI</div>`;
+
     return `<article class="subcategory-card" tabindex="0" role="button" data-subcategory-key="${escapeHtml(entry.name)}" aria-label="Open ${escapeHtml(entry.name)}">
-      <div class="subcategory-image">
-        ${preview ? `<img src="${escapeHtml(preview)}" alt="${escapeHtml(entry.name)}" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">` : `<div class="no-image" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:34px;color:var(--wine);">ANVI</div>`}
+      <div class="subcategory-image${collageClass}">
+        ${imageContent}
       </div>
       <div class="subcategory-info">
         <div class="subcategory-name">${escapeHtml(entry.name)}</div>
