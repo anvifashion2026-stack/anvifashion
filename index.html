@@ -302,11 +302,9 @@ nav.links a:hover::after{width:100%;}
 .subcategory-arrow{margin-top:12px;font-size:12px;color:var(--wine);}
 .variant-product-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
 .variant-product-card{background:#fff;border:1px solid var(--line);border-radius:12px;overflow:hidden;min-width:0;}
-.variant-product-media{aspect-ratio:1/1;background:var(--blush);position:relative;overflow:hidden;cursor:zoom-in;}
+.variant-product-media{aspect-ratio:1/1;background:var(--blush);position:relative;overflow:hidden;cursor:pointer;}
 .variant-product-media img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease;}
 .variant-product-media:hover img{transform:scale(1.05);}
-.variant-product-zoom{position:absolute;right:10px;bottom:10px;width:32px;height:32px;border-radius:50%;background:rgba(250,246,240,.94);color:var(--wine);display:flex;align-items:center;justify-content:center;border:1px solid var(--line);}
-.variant-product-zoom svg{width:15px;height:15px;}
 .variant-product-body{padding:15px 16px 17px;}
 .variant-product-name{font-size:14px;font-weight:500;line-height:1.35;color:var(--ink);min-height:38px;}
 .variant-product-design{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft);margin-top:5px;}
@@ -1380,149 +1378,172 @@ function renderVariantProducts(products, isRing){
 
   const term = PRODUCT_SEARCH_TERM;
   const filtered = !term ? products : products.filter(p => {
-    const searchable = [p.title, p.description, p.id, p.googleCategory, p.subCategory, p.design, p.brand, p.color, p.material].join(" ").toLowerCase();
+    const searchable = [
+      p.title, p.description, p.id, p.googleCategory,
+      p.subCategory, p.design, p.brand, p.color, p.material,
+      p.size
+    ].join(" ").toLowerCase();
     return searchable.includes(term);
   });
 
-  const groups = new Map();
+  // Each design is one product card; its rows are the individual size/SKU variants.
+  const groupMap = new Map();
   filtered.forEach(p => {
-    const key = String(p.design || p.title || p.id).trim().toLowerCase();
-    if(!groups.has(key)) groups.set(key, []);
-    groups.get(key).push(p);
+    const designName = String(p.design || p.title || p.id || "Design").trim();
+    const key = designName.toLowerCase();
+    if(!groupMap.has(key)) groupMap.set(key, { design: designName, variants: [] });
+    groupMap.get(key).variants.push(p);
   });
 
-  if(!groups.size){
+  const groups = [...groupMap.values()];
+
+  if(!groups.length){
     wrap.innerHTML = `<div class="variant-status">${term ? `No products matching “${escapeHtml(term)}” here.` : "No products are available in this sub-category."}</div>`;
     return;
   }
 
-  wrap.innerHTML = [...groups.values()].map(variants => {
-    const sorted = [...variants].sort((a,b) => String(a.size || "").localeCompare(String(b.size || ""), "en", { numeric:true }));
-    const primary = sorted.find(v => v.inStock && v.image) || sorted.find(v => v.image) || sorted[0];
-    const design = String(primary.design || primary.title || "Design").trim();
-    const title = String(primary.title || design).trim();
-    const priceVariant = sorted.find(v => Number(v.price) > 0) || primary;
-    const sizeButtons = isRing
-      ? RING_SIZES.map(size => {
-          const variant = sorted.find(v => normalizeRingSize(v.size) === size);
-          const available = !!variant && !!variant.inStock;
-          const qty = variant ? getAvailableQuantity(variant) : null;
-          return `<button type="button" class="variant-size-btn" data-size="${size}" data-variant-key="${variant ? escapeHtml(variant.cartKey || variant.id) : ""}" ${available ? "" : "disabled"} title="${available ? `Size ${size}${qty !== null ? ` — ${qty} available` : " available"}` : `Size ${size} unavailable`}">${size}</button>`;
-        }).join("")
-      : "";
-    const groupKey = String(design).trim().toLowerCase();
-    return `<article class="variant-product-card" data-group-key="${escapeHtml(groupKey)}">
-      <div class="variant-product-media" data-zoom-image="${escapeHtml(primary.image || "")}" data-zoom-caption="${escapeHtml(design)}">
-        ${primary.image ? `<img src="${escapeHtml(primary.image)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">` : `<div class="no-image" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:34px;color:var(--wine);">ANVI</div>`}
-        ${primary.image ? `<span class="variant-product-zoom" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10.8" cy="10.8" r="6.5"/><path d="m16 16 5 5M10.8 8v5.6M8 10.8h5.6"/></svg></span>` : ""}
+  // Build the cards first. We deliberately store only a numeric group index in
+  // the DOM. The actual product objects remain in this render's closure, which
+  // prevents one card from ever resolving to another card's variants.
+  wrap.innerHTML = groups.map((group, groupIndex) => {
+    const variants = [...group.variants].sort((a,b) =>
+      String(a.size || "").localeCompare(String(b.size || ""), "en", {numeric:true})
+    );
+    const primary = variants.find(v => v.inStock && v.image) || variants.find(v => v.image) || variants[0];
+    const title = String(primary.title || group.design || "Product").trim();
+    const priceVariant = variants.find(v => Number(v.price) > 0) || primary;
+
+    const sizeButtons = isRing ? RING_SIZES.map(size => {
+      const matches = variants.filter(v => normalizeRingSize(v.size) === size);
+      // Prefer an in-stock row when duplicate rows for the same size exist.
+      const variant = matches.find(v => v.inStock) || matches[0] || null;
+      const available = !!variant && !!variant.inStock;
+      const qty = variant ? getAvailableQuantity(variant) : null;
+      return `<button type="button" class="variant-size-btn" data-size="${size}" ${available ? "" : "disabled"} aria-pressed="false" title="${available ? `Size ${size}${qty !== null ? ` — ${qty} available` : " available"}` : `Size ${size} unavailable`}">${size}</button>`;
+    }).join("") : "";
+
+    return `<article class="variant-product-card" data-group-index="${groupIndex}">
+      <div class="variant-product-media" role="button" tabindex="0" aria-label="View details of ${escapeHtml(title)}">
+        ${primary.image
+          ? `<img src="${escapeHtml(primary.image)}" alt="${escapeHtml(title)}" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">`
+          : `<div class="no-image" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:34px;color:var(--wine);">ANVI</div>`}
       </div>
       <div class="variant-product-body">
         <div class="variant-product-name">${escapeHtml(title)}</div>
-        <div class="variant-product-design">Design: ${escapeHtml(design)}</div>
+        <div class="variant-product-design">Design: ${escapeHtml(group.design)}</div>
         <div class="variant-product-price">${CONFIG.CURRENCY_SYMBOL}${(Number(priceVariant.price) || 0).toLocaleString("en-IN")}</div>
         ${isRing ? `<div class="variant-size-label">Select size</div><div class="variant-size-options">${sizeButtons}</div>` : ""}
         <div class="variant-action-row">
-          <div class="variant-stock-note">${isRing ? "Unavailable sizes are disabled" : (primary.inStock ? formatStock(primary) : "Out of stock")}</div>
-          <button type="button" class="variant-add-btn" disabled>Add to Cart</button>
+          <div class="variant-stock-note">${isRing ? "Select an available size" : (primary.inStock ? formatStock(primary) : "Out of stock")}</div>
+          <button type="button" class="variant-add-btn" disabled>${isRing ? "Select a Size" : "Add to Cart"}</button>
         </div>
       </div>
     </article>`;
   }).join("");
 
-  // Important: bind each rendered card to its exact group by render order.
-  // Do not read the group back from data-group-key because HTML escaping can
-  // change the string (for example design names containing & or quotes) and
-  // cause later cards to lose their variant list.
   const renderedCards = Array.from(wrap.querySelectorAll(".variant-product-card"));
-  renderedCards.forEach((card, cardIndex) => {
-    const variantList = [...groups.values()][cardIndex] || [];
-    const addBtn = card.querySelector(".variant-add-btn");
-    const variantBySize = new Map();
-    variantList.forEach(v => {
-      const sizeKey = normalizeRingSize(v.size);
-      if(sizeKey && !variantBySize.has(sizeKey)) variantBySize.set(sizeKey, v);
-    });
-    let selectedVariant = null;
 
-    const refresh = () => {
+  renderedCards.forEach((card, groupIndex) => {
+    const group = groups[groupIndex];
+    if(!group) return;
+
+    const variants = group.variants;
+    const primary = variants.find(v => v.inStock && v.image) || variants.find(v => v.image) || variants[0];
+    const addBtn = card.querySelector(".variant-add-btn");
+    const priceEl = card.querySelector(".variant-product-price");
+    const noteEl = card.querySelector(".variant-stock-note");
+    const variantBySize = new Map();
+
+    variants.forEach(v => {
+      const sizeKey = normalizeRingSize(v.size);
+      if(sizeKey){
+        const current = variantBySize.get(sizeKey);
+        // Prefer an in-stock variant if duplicate size rows are present.
+        if(!current || (!current.inStock && v.inStock)) variantBySize.set(sizeKey, v);
+      }
+    });
+
+    // Store selection on the individual DOM card. No shared selectedVariant variable.
+    card._selectedVariant = null;
+
+    const refreshCard = () => {
+      const selected = card._selectedVariant;
+
       card.querySelectorAll(".variant-size-btn").forEach(btn => {
-        const isSelected = !!selectedVariant && btn.dataset.size === normalizeRingSize(selectedVariant.size);
-        btn.classList.toggle("selected", isSelected);
-        btn.setAttribute("aria-pressed", isSelected ? "true" : "false");
+        const selectedNow = !!selected && btn.dataset.size === normalizeRingSize(selected.size);
+        btn.classList.toggle("selected", selectedNow);
+        btn.setAttribute("aria-pressed", selectedNow ? "true" : "false");
       });
+
       if(addBtn){
-        addBtn.disabled = !selectedVariant || !selectedVariant.inStock;
-        const priceEl = card.querySelector(".variant-product-price");
-        if(selectedVariant){
-          const q = getAvailableQuantity(selectedVariant);
-          addBtn.textContent = `Add Size ${selectedVariant.size}`;
-          if(priceEl) priceEl.textContent = `${CONFIG.CURRENCY_SYMBOL}${(Number(selectedVariant.price) || 0).toLocaleString("en-IN")}`;
-          const note = card.querySelector(".variant-stock-note");
-          if(note) note.textContent = q !== null ? `${q} available in size ${selectedVariant.size}` : `Available in size ${selectedVariant.size}`;
-        } else {
-          addBtn.textContent = "Select a Size";
-          if(priceEl) priceEl.textContent = `${CONFIG.CURRENCY_SYMBOL}${(Number(priceVariant.price) || 0).toLocaleString("en-IN")}`;
-        }
+        const canAdd = !!selected && !!selected.inStock;
+        addBtn.disabled = !canAdd;
+        addBtn.textContent = canAdd ? `Add Size ${selected.size}` : "Select a Size";
+      }
+
+      if(selected){
+        if(priceEl) priceEl.textContent = `${CONFIG.CURRENCY_SYMBOL}${(Number(selected.price) || 0).toLocaleString("en-IN")}`;
+        const q = getAvailableQuantity(selected);
+        if(noteEl) noteEl.textContent = q !== null
+          ? `${q} available in size ${selected.size}`
+          : `Available in size ${selected.size}`;
+      }else{
+        if(priceEl) priceEl.textContent = `${CONFIG.CURRENCY_SYMBOL}${(Number((variants.find(v => Number(v.price) > 0) || primary).price) || 0).toLocaleString("en-IN")}`;
+        if(noteEl) noteEl.textContent = isRing ? "Select an available size" : (primary.inStock ? formatStock(primary) : "Out of stock");
       }
     };
 
+    // Size selection is scoped to THIS card only.
     card.querySelectorAll(".variant-size-btn").forEach(btn => {
       btn.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
-        if(btn.disabled) return;
 
-        // The button belongs to this card only, so the lookup cannot affect
-        // another design card. Always resolve the exact size row in this card.
         const size = normalizeRingSize(btn.dataset.size);
-        const nextVariant = variantBySize.get(size) || null;
-        if(!nextVariant || !nextVariant.inStock) return;
+        const selected = variantBySize.get(size) || null;
+        if(!selected || !selected.inStock) return;
 
-        selectedVariant = nextVariant;
-        refresh();
+        card._selectedVariant = selected;
+        refreshCard();
       });
     });
 
+    // For ring sub-category cards, clicking the image opens the normal product
+    // details popup instead of the separate image-zoom overlay.
     const media = card.querySelector(".variant-product-media");
     if(media){
-      // Keep the existing image zoom action available from the small zoom icon.
-      // Clicking the product image itself opens the full product-details popup.
-      media.addEventListener("click", event => {
-        const zoom = event.target.closest(".variant-product-zoom");
-        if(zoom && media.dataset.zoomImage){
+      const openDetails = event => {
+        if(event){
           event.preventDefault();
           event.stopPropagation();
-          openImageZoom(media.dataset.zoomImage, media.dataset.zoomCaption);
-          return;
         }
-
-        event.preventDefault();
-        event.stopPropagation();
-        openProductModal(selectedVariant || primary);
+        openProductModal(card._selectedVariant || primary);
+      };
+      media.addEventListener("click", openDetails);
+      media.addEventListener("keydown", event => {
+        if(event.key === "Enter" || event.key === " ") openDetails(event);
       });
     }
 
-    // Clicking the product card also opens the same full product-details popup
-    // used by the original catalogue. When a ring size has been selected,
-    // open that exact size variant so SKU/Size/Design/Material and stock
-    // details are shown for the selected item.
     card.addEventListener("click", event => {
       if(event.target.closest(".variant-size-btn, .variant-add-btn, .variant-product-media")) return;
-      openProductModal(selectedVariant || primary);
+      openProductModal(card._selectedVariant || primary);
     });
 
     if(addBtn){
       addBtn.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
-        if(!selectedVariant || !selectedVariant.inStock) return;
-        addToCart(selectedVariant);
+        const selected = card._selectedVariant;
+        if(!selected || !selected.inStock) return;
+
+        addToCart(selected);
         addBtn.textContent = "Added ✓";
-        setTimeout(refresh, 900);
+        setTimeout(refreshCard, 900);
       });
     }
 
-    refresh();
+    refreshCard();
   });
 }
 
