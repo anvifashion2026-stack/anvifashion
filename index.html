@@ -996,12 +996,22 @@ function formatCatalogueLabel(value){
 }
 
 function normalizeRingSize(value){
-  const raw = String(value ?? "").trim();
-  const compact = raw.toLowerCase().replace(/[\s_-]+/g, "");
+  // Normalize whitespace/dashes/underscores so every common Free Size
+  // spelling is treated as the same variant.
+  const raw = String(value ?? "")
+    .replace(/\u00A0/g, " ")
+    .trim();
 
-  // Treat all common free-size spellings as the same Ring size.
-  // Examples: Free, Free Size, Free-Size, Free_size, Freesize, Free Sized.
-  if(compact === "free" || compact === "freesize" || compact === "freesized" || /\bfree\b.*\bsize\b/i.test(raw)) {
+  const compact = raw.toLowerCase().replace(/[^a-z0-9]+/g, "");
+
+  // Examples supported: Free, Free Size, Free-Size, Free_size,
+  // Freesize, Free Sized, FREE SIZE (Adjustable), etc.
+  if(
+    compact === "free" ||
+    compact.startsWith("freesize") ||
+    /\bfree\b[\s_-]*\bsize\b/i.test(raw) ||
+    /\bfree\b/i.test(raw)
+  ){
     return "Free";
   }
 
@@ -1127,8 +1137,16 @@ if(idx.googleCategory < 0) {
       const availability = String(cell(row, idx.availability) ?? "").trim().toLowerCase();
       const quantityRaw = String(cell(row, idx.quantity) ?? "").replace(/,/g, "").trim();
       const quantity = quantityRaw === "" ? null : Number(quantityRaw);
-      const explicitlyOut = ["out of stock", "unavailable", "sold out", "outofstock"].includes(availability)
-        || (quantity !== null && !Number.isNaN(quantity) && quantity <= 0);
+      const hasNumericQuantity = quantity !== null && Number.isFinite(quantity);
+      const positiveQuantity = hasNumericQuantity && quantity > 0;
+      const zeroQuantity = hasNumericQuantity && quantity <= 0;
+      const availabilitySaysOut = ["out of stock", "unavailable", "sold out", "outofstock"].includes(availability);
+
+      // Quantity is the actual stock count. If a positive quantity exists,
+      // keep the variant available even if an older/stale availability text
+      // says "out of stock". If quantity is zero, disable it. When quantity
+      // is blank/non-numeric, fall back to the availability text.
+      const explicitlyOut = zeroQuantity || (!hasNumericQuantity && availabilitySaysOut);
 const sourceId = String(cell(row, idx.id) || `g${i}`).trim();
       const subCategory = String(cell(row, idx.subCategory) || "").trim();
       const size = deriveRingSize(cell(row, idx.size));
