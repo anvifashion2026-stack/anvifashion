@@ -997,7 +997,14 @@ function formatCatalogueLabel(value){
 
 function normalizeRingSize(value){
   const raw = String(value ?? "").trim();
-  if(/^free\s*size$/i.test(raw) || /^free$/i.test(raw)) return "Free";
+  const compact = raw.toLowerCase().replace(/[\s_-]+/g, "");
+
+  // Treat all common free-size spellings as the same Ring size.
+  // Examples: Free, Free Size, Free-Size, Free_size, Freesize, Free Sized.
+  if(compact === "free" || compact === "freesize" || compact === "freesized" || /\bfree\b.*\bsize\b/i.test(raw)) {
+    return "Free";
+  }
+
   const match = raw.match(/(?:size\s*)?(5|6|7|8)(?:\s*(?:us|uk))?$/i);
   return match ? match[1] : "";
 }
