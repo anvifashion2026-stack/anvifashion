@@ -1123,6 +1123,22 @@ if(idx.googleCategory < 0) {
     };
 
     const deriveRingSize = value => normalizeRingSize(value);
+
+    // Google Visualization can occasionally return a blank/mismatched header
+    // index when columns have been moved/hidden. For ring variants, recover the
+    // size directly from the row as a fallback so a valid Size = Free row is not
+    // lost just because the header index was not resolved.
+    const deriveRingSizeFromRow = row => {
+      const preferred = idx.size >= 0 ? deriveRingSize(cell(row, idx.size)) : "";
+      if(preferred) return preferred;
+
+      for(let c = 0; c < (row.c || []).length; c++){
+        const candidate = deriveRingSize(cell(row, c));
+        if(candidate) return candidate;
+      }
+      return "";
+    };
+
     const deriveRingDesign = (designValue, title) => {
       const explicit = String(designValue ?? "").trim();
       return explicit || String(title || "").trim() || "Design";
@@ -1149,7 +1165,7 @@ if(idx.googleCategory < 0) {
       const explicitlyOut = zeroQuantity || (!hasNumericQuantity && availabilitySaysOut);
 const sourceId = String(cell(row, idx.id) || `g${i}`).trim();
       const subCategory = String(cell(row, idx.subCategory) || "").trim();
-      const size = deriveRingSize(cell(row, idx.size));
+      const size = deriveRingSizeFromRow(row);
       const design = deriveRingDesign(cell(row, idx.design), title);
 
       return {
@@ -1534,7 +1550,10 @@ function renderVariantProducts(products, isRing){
       const matches = variants.filter(v => normalizeRingSize(v.size) === size);
       // Prefer an in-stock row when duplicate rows for the same size exist.
       const variant = matches.find(v => v.inStock) || matches[0] || null;
-      const available = !!variant && !!variant.inStock;
+      const available = !!variant && (
+        !!variant.inStock ||
+        (getAvailableQuantity(variant) !== null && getAvailableQuantity(variant) > 0)
+      );
       const qty = variant ? getAvailableQuantity(variant) : null;
       return `<button type="button" class="variant-size-btn" data-size="${size}" ${available ? "" : "disabled"} aria-pressed="false" title="${available ? `Size ${size}${qty !== null ? ` — ${qty} available` : " available"}` : `Size ${size} unavailable`}">${size}</button>`;
     }).join("") : "";
@@ -1618,7 +1637,11 @@ function renderVariantProducts(products, isRing){
 
         const size = normalizeRingSize(btn.dataset.size);
         const selected = variantBySize.get(size) || null;
-        if(!selected || !selected.inStock) return;
+        const selectedAvailable = !!selected && (
+          !!selected.inStock ||
+          (getAvailableQuantity(selected) !== null && getAvailableQuantity(selected) > 0)
+        );
+        if(!selectedAvailable) return;
 
         card._selectedVariant = selected;
         refreshCard();
@@ -1652,7 +1675,11 @@ function renderVariantProducts(products, isRing){
         event.preventDefault();
         event.stopPropagation();
         const selected = card._selectedVariant;
-        if(!selected || !selected.inStock) return;
+        const selectedAvailable = !!selected && (
+          !!selected.inStock ||
+          (getAvailableQuantity(selected) !== null && getAvailableQuantity(selected) > 0)
+        );
+        if(!selectedAvailable) return;
 
         addToCart(selected);
         addBtn.textContent = "Added ✓";
