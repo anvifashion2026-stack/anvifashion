@@ -1526,7 +1526,9 @@ function renderVariantProducts(products, isRing){
     return searchable.includes(term);
   });
 
-  // Each design is one product card; its rows are the individual size/SKU variants.
+  // Rings are grouped by Design because each design can have multiple size/SKU
+  // variants. For non-ring sub-categories, keep the same design grouping but
+  // use the product itself as the cart item and provide quantity controls.
   const groupMap = new Map();
   filtered.forEach(p => {
     const designName = String(p.design || p.title || p.id || "Design").trim();
@@ -1556,7 +1558,11 @@ function renderVariantProducts(products, isRing){
       if(orderDiff !== 0) return orderDiff;
       return String(a.size || "").localeCompare(String(b.size || ""), "en", {numeric:true});
     });
-    const primary = variants.find(v => v.inStock && v.image) || variants.find(v => v.image) || variants[0];
+
+    // For non-ring sub-category cards, use the first available product as the
+    // cart item. Quantity is handled directly on the card instead of through
+    // the Ring size selector.
+    const primary = variants.find(v => v.inStock && v.image) || variants.find(v => v.image) || variants.find(v => v.inStock) || variants[0];
     const title = String(primary.title || group.design || "Product").trim();
     const priceVariant = variants.find(v => Number(v.price) > 0) || primary;
 
@@ -1572,6 +1578,12 @@ function renderVariantProducts(products, isRing){
       return `<button type="button" class="variant-size-btn" data-size="${size}" ${available ? "" : "disabled"} aria-pressed="false" title="${available ? `Size ${size}${qty !== null ? ` — ${qty} available` : " available"}` : `Size ${size} unavailable`}">${size}</button>`;
     }).join("") : "";
 
+    const primaryAvailable = !!primary && (
+      !!primary.inStock ||
+      (getAvailableQuantity(primary) !== null && getAvailableQuantity(primary) > 0)
+    );
+    const primaryQty = primary ? getAvailableQuantity(primary) : null;
+
     return `<article class="variant-product-card" data-group-index="${groupIndex}">
       <div class="variant-product-media" role="button" tabindex="0" aria-label="View details of ${escapeHtml(title)}">
         ${primary.image
@@ -1582,10 +1594,17 @@ function renderVariantProducts(products, isRing){
         <div class="variant-product-name">${escapeHtml(title)}</div>
         <div class="variant-product-design">Design: ${escapeHtml(group.design)}</div>
         <div class="variant-product-price">${CONFIG.CURRENCY_SYMBOL}${(Number(priceVariant.price) || 0).toLocaleString("en-IN")}</div>
-        ${isRing ? `<div class="variant-size-label">Select size</div><div class="variant-size-options">${sizeButtons}</div>` : ""}
+        ${isRing
+          ? `<div class="variant-size-label">Select size</div><div class="variant-size-options">${sizeButtons}</div>`
+          : `<div class="variant-size-label">Quantity</div>
+             <div class="qty-row variant-quantity-row">
+               <button type="button" class="qty-btn variant-qty-btn" data-act="dec" aria-label="Decrease quantity">−</button>
+               <span class="qty-val variant-qty-val">1</span>
+               <button type="button" class="qty-btn variant-qty-btn" data-act="inc" aria-label="Increase quantity">+</button>
+             </div>`}
         <div class="variant-action-row">
-          <div class="variant-stock-note">${isRing ? "Select an available size" : (primary.inStock ? formatStock(primary) : "Out of stock")}</div>
-          <button type="button" class="variant-add-btn" disabled>${isRing ? "Select a Size" : "Add to Cart"}</button>
+          <div class="variant-stock-note">${isRing ? "Select an available size" : (primaryAvailable ? `${primaryQty !== null ? `${primaryQty} available` : "Available"}` : "Out of stock")}</div>
+          <button type="button" class="variant-add-btn" ${isRing ? "disabled" : (primaryAvailable ? "" : "disabled")}>${isRing ? "Select a Size" : "Add to Cart"}</button>
         </div>
       </div>
     </article>`;
@@ -1598,10 +1617,13 @@ function renderVariantProducts(products, isRing){
     if(!group) return;
 
     const variants = group.variants;
-    const primary = variants.find(v => v.inStock && v.image) || variants.find(v => v.image) || variants[0];
+    const primary = variants.find(v => v.inStock && v.image) || variants.find(v => v.image) || variants.find(v => v.inStock) || variants[0];
     const addBtn = card.querySelector(".variant-add-btn");
     const priceEl = card.querySelector(".variant-product-price");
     const noteEl = card.querySelector(".variant-stock-note");
+    const qtyVal = card.querySelector(".variant-qty-val");
+    const qtyMinus = card.querySelector('.variant-qty-btn[data-act="dec"]');
+    const qtyPlus = card.querySelector('.variant-qty-btn[data-act="inc"]');
     const variantBySize = new Map();
 
     variants.forEach(v => {
@@ -1613,8 +1635,17 @@ function renderVariantProducts(products, isRing){
       }
     });
 
-    // Store selection on the individual DOM card. No shared selectedVariant variable.
-    card._selectedVariant = null;
+    // Store selection and quantity on the individual DOM card. No shared
+    // selectedVariant/quantity variable is used across cards.
+    card._selectedVariant = isRing ? null : primary;
+    card._selectedQty = 1;
+
+    const getExistingQtyForCard = product => {
+      if(!product) return 0;
+      const cartKey = String(product.cartKey || product.id);
+      const existing = CART.find(item => String(item.cartKey || item.id) === cartKey);
+      return existing ? Number(existing.qty) || 0 : 0;
+    };
 
     const refreshCard = () => {
       const selected = card._selectedVariant;
@@ -1624,6 +1655,33 @@ function renderVariantProducts(products, isRing){
         btn.classList.toggle("selected", selectedNow);
         btn.setAttribute("aria-pressed", selectedNow ? "true" : "false");
       });
+
+      if(!isRing && selected){
+        const available = getAvailableQuantity(selected);
+        const existingQty = getExistingQtyForCard(selected);
+        const remaining = available === null ? null : Math.max(0, available - existingQty);
+
+        if(remaining !== null && remaining > 0 && card._selectedQty > remaining){
+          card._selectedQty = remaining;
+        }
+        if(card._selectedQty < 1) card._selectedQty = 1;
+        if(qtyVal) qtyVal.textContent = String(card._selectedQty);
+        if(qtyMinus) qtyMinus.disabled = !selected.inStock || card._selectedQty <= 1 || (remaining !== null && remaining <= 0);
+        if(qtyPlus) qtyPlus.disabled = !selected.inStock || (remaining !== null && card._selectedQty >= remaining);
+
+        const canAdd = !!selected.inStock && (remaining === null || remaining > 0);
+        if(addBtn){
+          addBtn.disabled = !canAdd;
+          addBtn.textContent = canAdd ? "Add to Cart" : "Out of Stock";
+        }
+        if(noteEl){
+          noteEl.textContent = remaining !== null
+            ? `${remaining} available${existingQty > 0 ? ` (${existingQty} in cart)` : ""}`
+            : formatStock(selected);
+        }
+        if(priceEl) priceEl.textContent = `${CONFIG.CURRENCY_SYMBOL}${(Number(selected.price) || 0).toLocaleString("en-IN")}`;
+        return;
+      }
 
       if(addBtn){
         const canAdd = !!selected && !!selected.inStock;
@@ -1639,31 +1697,57 @@ function renderVariantProducts(products, isRing){
           : `Available in size ${selected.size}`;
       }else{
         if(priceEl) priceEl.textContent = `${CONFIG.CURRENCY_SYMBOL}${(Number((variants.find(v => Number(v.price) > 0) || primary).price) || 0).toLocaleString("en-IN")}`;
-        if(noteEl) noteEl.textContent = isRing ? "Select an available size" : (primary.inStock ? formatStock(primary) : "Out of stock");
+        if(noteEl) noteEl.textContent = "Select an available size";
       }
     };
 
-    // Size selection is scoped to THIS card only.
-    card.querySelectorAll(".variant-size-btn").forEach(btn => {
-      btn.addEventListener("click", event => {
+    // Ring size selection is scoped to THIS card only.
+    if(isRing){
+      card.querySelectorAll(".variant-size-btn").forEach(btn => {
+        btn.addEventListener("click", event => {
+          event.preventDefault();
+          event.stopPropagation();
+
+          const size = normalizeRingSize(btn.dataset.size);
+          const selected = variantBySize.get(size) || null;
+          const selectedAvailable = !!selected && (
+            !!selected.inStock ||
+            (getAvailableQuantity(selected) !== null && getAvailableQuantity(selected) > 0)
+          );
+          if(!selectedAvailable) return;
+
+          card._selectedVariant = selected;
+          refreshCard();
+        });
+      });
+    }else{
+      // Non-ring sub-category products use quantity controls directly on the
+      // product tile. Quantity is limited by the remaining stock after any
+      // quantity already present in the cart.
+      if(qtyMinus) qtyMinus.addEventListener("click", event => {
         event.preventDefault();
         event.stopPropagation();
+        if(card._selectedQty > 1){
+          card._selectedQty -= 1;
+          refreshCard();
+        }
+      });
 
-        const size = normalizeRingSize(btn.dataset.size);
-        const selected = variantBySize.get(size) || null;
-        const selectedAvailable = !!selected && (
-          !!selected.inStock ||
-          (getAvailableQuantity(selected) !== null && getAvailableQuantity(selected) > 0)
-        );
-        if(!selectedAvailable) return;
-
-        card._selectedVariant = selected;
+      if(qtyPlus) qtyPlus.addEventListener("click", event => {
+        event.preventDefault();
+        event.stopPropagation();
+        const selected = card._selectedVariant;
+        if(!selected) return;
+        const available = getAvailableQuantity(selected);
+        const existingQty = getExistingQtyForCard(selected);
+        const remaining = available === null ? null : Math.max(0, available - existingQty);
+        if(remaining !== null && card._selectedQty >= remaining) return;
+        card._selectedQty += 1;
         refreshCard();
       });
-    });
+    }
 
-    // For ring sub-category cards, clicking the image opens the normal product
-    // details popup instead of the separate image-zoom overlay.
+    // Clicking the product image opens the normal product details popup.
     const media = card.querySelector(".variant-product-media");
     if(media){
       const openDetails = event => {
@@ -1680,7 +1764,7 @@ function renderVariantProducts(products, isRing){
     }
 
     card.addEventListener("click", event => {
-      if(event.target.closest(".variant-size-btn, .variant-add-btn, .variant-product-media")) return;
+      if(event.target.closest(".variant-size-btn, .variant-add-btn, .variant-product-media, .variant-qty-btn")) return;
       openProductModal(card._selectedVariant || primary);
     });
 
@@ -1689,15 +1773,36 @@ function renderVariantProducts(products, isRing){
         event.preventDefault();
         event.stopPropagation();
         const selected = card._selectedVariant;
-        const selectedAvailable = !!selected && (
-          !!selected.inStock ||
-          (getAvailableQuantity(selected) !== null && getAvailableQuantity(selected) > 0)
-        );
-        if(!selectedAvailable) return;
+        if(!selected) return;
 
-        addToCart(selected);
-        addBtn.textContent = "Added ✓";
-        setTimeout(refreshCard, 900);
+        if(isRing){
+          const selectedAvailable = !!selected && (
+            !!selected.inStock ||
+            (getAvailableQuantity(selected) !== null && getAvailableQuantity(selected) > 0)
+          );
+          if(!selectedAvailable) return;
+
+          addToCart(selected);
+          addBtn.textContent = "Added ✓";
+          setTimeout(refreshCard, 900);
+        }else{
+          const available = getAvailableQuantity(selected);
+          const existingQty = getExistingQtyForCard(selected);
+          const remaining = available === null ? null : Math.max(0, available - existingQty);
+          if(!selected.inStock || (remaining !== null && remaining <= 0)) return;
+
+          const requestedQty = Math.max(1, Math.floor(Number(card._selectedQty) || 1));
+          if(remaining !== null && requestedQty > remaining){
+            card._selectedQty = remaining;
+            refreshCard();
+            return;
+          }
+
+          if(addQuantityToCart(selected, requestedQty)){
+            addBtn.textContent = "Added ✓";
+            setTimeout(refreshCard, 900);
+          }
+        }
       });
     }
 
