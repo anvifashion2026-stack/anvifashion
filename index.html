@@ -1284,7 +1284,8 @@ if(productSearchInput){
     PRODUCT_SEARCH_TERM = productSearchInput.value.trim().toLowerCase();
     if(ACTIVE_SUBCATEGORY){
       const entries = getSubCategoryEntries(ACTIVE_CATEGORY);
-      const entry = entries.find(e => e.name.toLowerCase() === ACTIVE_SUBCATEGORY.toLowerCase());
+      let entry = entries.find(e => e.name.toLowerCase() === ACTIVE_SUBCATEGORY.toLowerCase());
+
       if(entry) renderVariantProducts(entry.products, isRingsGoogleCategory(ACTIVE_CATEGORY));
       return;
     }
@@ -1344,17 +1345,21 @@ function showCategoryVariantView(category){
   const view = document.getElementById("categoryVariantView");
   if(!view) return false;
 
-  // Only switch to the new sub-category experience when Sub-Category is
-  // populated for the selected google_product_category. If the category
-  // has blank Sub-Category values, keep the complete category on the original
-  // product-grid experience so no legacy product is hidden.
+  // Any category that has at least one non-blank Sub-Category uses the
+  // category -> sub-category -> product experience. Rings use the same
+  // experience, with the additional ring-size selector handled by
+  // renderVariantProducts(). Other categories do NOT get size selectors.
   const categoryProducts = getCategoryProducts(category);
   if(!categoryProducts.length) return false;
-  const hasBlankSubCategory = categoryProducts.some(p => !String(p.subCategory || "").trim());
-  if(hasBlankSubCategory) return false;
 
   const subcats = getSubCategoryEntries(category);
   if(!subcats.length) return false;
+
+  // If the selected category contains ANY rows with a blank Sub-Category,
+  // keep the entire category on the normal category filter. Blank is not
+  // a synthetic sub-category and should never be shown as "Other Products".
+  const hasBlankSubCategory = categoryProducts.some(p => !String(p.subCategory || "").trim());
+  if(hasBlankSubCategory) return false;
 
   if(grid) grid.style.display = "none";
   view.classList.add("active");
@@ -1381,6 +1386,11 @@ function renderSubcategoryTiles(category, entries){
   const backSub = document.getElementById("variantBackSubcategoryBtn");
   if(!subGrid || !productGrid) return;
 
+  // Blank Sub-Category is NOT a sub-category. Do not create an
+  // "Other Products" tile. Those rows remain part of the normal
+  // category-level product listing.
+  const tileEntries = [...entries];
+
   if(breadcrumb) breadcrumb.textContent = formatCatalogueLabel(category);
   if(title) title.textContent = "Choose a sub-category";
   if(description) description.textContent = `Select a ${formatCatalogueLabel(category)} sub-category to browse its products.`;
@@ -1389,7 +1399,7 @@ function renderSubcategoryTiles(category, entries){
   subGrid.style.display = "grid";
   productGrid.style.display = "none";
 
-  subGrid.innerHTML = entries.map(entry => {
+  subGrid.innerHTML = tileEntries.map(entry => {
     const previewImages = [];
     const seenImages = new Set();
 
@@ -1438,6 +1448,9 @@ function renderSubcategoryTiles(category, entries){
 
     const designCount = new Set(entry.products.map(p => String(p.design || p.title || p.id).trim().toLowerCase()).filter(Boolean)).size;
     const isRingsCollage = isRingsGoogleCategory(category) && previewImages.length >= 2;
+    const tileDescription = entry.isBlankSubCategory
+      ? "Products without a sub-category"
+      : `${entry.products.length} variant row${entry.products.length === 1 ? "" : "s"} · ${designCount} design${designCount === 1 ? "" : "s"}`;
     const collageClass = isRingsCollage ? ` rings-collage count-${Math.min(previewImages.length,4)}` : "";
     const imageContent = previewImages.length
       ? (isRingsCollage
@@ -1451,7 +1464,7 @@ function renderSubcategoryTiles(category, entries){
       </div>
       <div class="subcategory-info">
         <div class="subcategory-name">${escapeHtml(entry.name)}</div>
-        <div class="subcategory-count">${entry.products.length} variant row${entry.products.length === 1 ? "" : "s"} · ${designCount} design${designCount === 1 ? "" : "s"}</div>
+        <div class="subcategory-count">${tileDescription}</div>
         <div class="subcategory-arrow">View products →</div>
       </div>
     </article>`;
@@ -1459,7 +1472,7 @@ function renderSubcategoryTiles(category, entries){
 
   subGrid.querySelectorAll(".subcategory-card").forEach(card => {
     const name = card.dataset.subcategoryKey || "";
-    const entry = entries.find(e => e.name.toLowerCase() === name.toLowerCase());
+    const entry = tileEntries.find(e => e.name.toLowerCase() === name.toLowerCase());
     if(!entry) return;
     const open = () => showSubcategoryProducts(category, entry.name);
     card.addEventListener("click", open);
@@ -1472,9 +1485,10 @@ function renderSubcategoryTiles(category, entries){
 function showSubcategoryProducts(category, subcategory){
   const view = document.getElementById("categoryVariantView");
   if(!view) return;
+
   const entries = getSubCategoryEntries(category);
   const entry = entries.find(e => e.name.toLowerCase() === String(subcategory || "").trim().toLowerCase());
-  if(!entry) return;
+  if(!entry || !entry.products.length) return;
 
   ACTIVE_SUBCATEGORY = entry.name;
   const subGrid = document.getElementById("subcategoryGrid");
