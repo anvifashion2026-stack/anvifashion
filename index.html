@@ -1286,7 +1286,7 @@ if(productSearchInput){
       const entries = getSubCategoryEntries(ACTIVE_CATEGORY);
       let entry = entries.find(e => e.name.toLowerCase() === ACTIVE_SUBCATEGORY.toLowerCase());
 
-      if(entry) renderVariantProducts(entry.products, isRingsGoogleCategory(ACTIVE_CATEGORY));
+      if(entry) renderVariantProducts(entry.products, isRingSubCategory(entry.name));
       return;
     }
     renderProducts();
@@ -1296,9 +1296,12 @@ function normalizeCategoryKey(value){
   return String(value || "").trim().toLowerCase();
 }
 
-function isRingsGoogleCategory(category){
-  const text = String(category || "").trim();
-  return /^(?:rings)(?:\s*-.*)?$/i.test(text) || /(?:^|[>\/])\s*rings(?:\s*-.*)?$/i.test(text);
+function isRingSubCategory(subCategory){
+  // Ring behavior is determined by the Sub-Category, not by the
+  // top-level Google Product Category. Examples: Rings-Single,
+  // Rings-Bold, Rings-Combo, Rings-Antique, etc.
+  const text = String(subCategory || "").trim();
+  return /(?:^|[\s_-])rings\s*-/i.test(text) || /^rings\s*-/i.test(text);
 }
 
 function hasSubCategoriesForCategory(category){
@@ -1346,9 +1349,9 @@ function showCategoryVariantView(category){
   if(!view) return false;
 
   // Any category that has at least one non-blank Sub-Category uses the
-  // category -> sub-category -> product experience. Rings use the same
-  // experience, with the additional ring-size selector handled by
-  // renderVariantProducts(). Other categories do NOT get size selectors.
+  // category -> sub-category -> product experience. Ring behavior is
+  // determined by the selected Sub-Category (one containing "Rings-").
+  // Other sub-categories do NOT get ring-size selectors.
   const categoryProducts = getCategoryProducts(category);
   if(!categoryProducts.length) return false;
 
@@ -1403,9 +1406,9 @@ function renderSubcategoryTiles(category, entries){
     const previewImages = [];
     const seenImages = new Set();
 
-    // For Rings, build the sub-category cover from up to 4 distinct product images.
+    // For Ring sub-categories, build the cover from up to 4 distinct product images.
     // Prefer different design images rather than repeating the same image for each size row.
-    if(isRingsGoogleCategory(category)){
+    if(isRingSubCategory(entry.name)){
       const candidates = [];
       const seenDesigns = new Set();
 
@@ -1447,7 +1450,7 @@ function renderSubcategoryTiles(category, entries){
     }
 
     const designCount = new Set(entry.products.map(p => String(p.design || p.title || p.id).trim().toLowerCase()).filter(Boolean)).size;
-    const isRingsCollage = isRingsGoogleCategory(category) && previewImages.length >= 2;
+    const isRingsCollage = isRingSubCategory(entry.name) && previewImages.length >= 2;
     const tileDescription = entry.isBlankSubCategory
       ? "Products without a sub-category"
       : `${entry.products.length} variant row${entry.products.length === 1 ? "" : "s"} · ${designCount} design${designCount === 1 ? "" : "s"}`;
@@ -1503,13 +1506,13 @@ function showSubcategoryProducts(category, subcategory){
   if(productGrid) productGrid.style.display = "grid";
   if(breadcrumb) breadcrumb.textContent = `${formatCatalogueLabel(category)} / ${formatCatalogueLabel(entry.name)}`;
   if(title) title.textContent = formatCatalogueLabel(entry.name);
-  if(description) description.textContent = isRingsGoogleCategory(category)
+  if(description) description.textContent = isRingSubCategory(entry.name)
     ? "Select a ring size for each design. Sizes that are unavailable are disabled."
     : "Choose a product to add it to your cart.";
   if(backCategory) backCategory.style.display = "none";
   if(backSub) backSub.style.display = "inline-flex";
 
-  renderVariantProducts(entry.products, isRingsGoogleCategory(category));
+  renderVariantProducts(entry.products, isRingSubCategory(entry.name));
 }
 
 function renderVariantProducts(products, isRing){
