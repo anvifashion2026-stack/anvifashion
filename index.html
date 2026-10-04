@@ -1402,62 +1402,76 @@ function renderSubcategoryTiles(category, entries){
   subGrid.style.display = "grid";
   productGrid.style.display = "none";
 
-  subGrid.innerHTML = tileEntries.map(entry => {
+  // Build a dynamic image collage for EVERY sub-category tile.
+  // Use up to 4 distinct available product images. Prefer different
+  // designs first so the tile represents the variety in that sub-category.
+  const buildSubCategoryPreviewImages = (products) => {
     const previewImages = [];
     const seenImages = new Set();
+    const seenDesigns = new Set();
+    const candidates = [];
 
-    // For Ring sub-categories, build the cover from up to 4 distinct product images.
-    // Prefer different design images rather than repeating the same image for each size row.
-    if(isRingSubCategory(entry.name)){
-      const candidates = [];
-      const seenDesigns = new Set();
+    products.forEach(p => {
+      const image = String(p.image || "").trim();
+      if(!image) return;
 
-      entry.products.forEach(p => {
-        const image = String(p.image || "").trim();
-        if(!image) return;
-        const designKey = String(p.design || p.title || p.id || "").trim().toLowerCase();
-        const imageKey = image.toLowerCase();
+      const imageKey = image.toLowerCase();
+      if(seenImages.has(imageKey)) return;
 
-        if(seenDesigns.has(designKey) && seenImages.has(imageKey)) return;
-        candidates.push({image, designKey, imageKey});
-      });
+      const designKey = String(p.design || p.title || p.id || "")
+        .trim()
+        .toLowerCase();
 
-      // First pass: one image per design.
+      candidates.push({ image, imageKey, designKey });
+    });
+
+    // First pass: one image from each distinct design.
+    candidates.forEach(item => {
+      if(previewImages.length >= 4) return;
+      if(item.designKey && seenDesigns.has(item.designKey)) return;
+
+      previewImages.push(item.image);
+      seenImages.add(item.imageKey);
+      if(item.designKey) seenDesigns.add(item.designKey);
+    });
+
+    // Second pass: if fewer than 4 designs exist, fill the remaining
+    // collage slots with other distinct available product images.
+    if(previewImages.length < 4){
       candidates.forEach(item => {
         if(previewImages.length >= 4) return;
-        if(item.designKey && seenDesigns.has(item.designKey)) return;
         if(seenImages.has(item.imageKey)) return;
+
         previewImages.push(item.image);
-        if(item.designKey) seenDesigns.add(item.designKey);
         seenImages.add(item.imageKey);
       });
-
-      // Second pass: fill remaining collage slots with other distinct images.
-      if(previewImages.length < 4){
-        entry.products.forEach(p => {
-          if(previewImages.length >= 4) return;
-          const image = String(p.image || "").trim();
-          const imageKey = image.toLowerCase();
-          if(image && !seenImages.has(imageKey)){
-            previewImages.push(image);
-            seenImages.add(imageKey);
-          }
-        });
-      }
-    }else{
-      const preview = entry.products.find(p => p.image)?.image || "";
-      if(preview) previewImages.push(preview);
     }
 
-    const designCount = new Set(entry.products.map(p => String(p.design || p.title || p.id).trim().toLowerCase()).filter(Boolean)).size;
-    const isRingsCollage = isRingSubCategory(entry.name) && previewImages.length >= 2;
-    const tileDescription = entry.isBlankSubCategory
-      ? "Products without a sub-category"
-      : `${entry.products.length} variant row${entry.products.length === 1 ? "" : "s"} · ${designCount} design${designCount === 1 ? "" : "s"}`;
-    const collageClass = isRingsCollage ? ` rings-collage count-${Math.min(previewImages.length,4)}` : "";
+    return previewImages;
+  };
+
+  subGrid.innerHTML = tileEntries.map(entry => {
+    const previewImages = buildSubCategoryPreviewImages(entry.products);
+    const designCount = new Set(
+      entry.products
+        .map(p => String(p.design || p.title || p.id).trim().toLowerCase())
+        .filter(Boolean)
+    ).size;
+
+    // Use the same 2x2 collage treatment previously used only for Rings.
+    // If only one image exists, show the normal single-image tile.
+    const isCollage = previewImages.length >= 2;
+    const collageClass = isCollage
+      ? ` rings-collage count-${Math.min(previewImages.length, 4)}`
+      : "";
+
+    const tileDescription = `${entry.products.length} variant row${entry.products.length === 1 ? "" : "s"} · ${designCount} design${designCount === 1 ? "" : "s"}`;
+
     const imageContent = previewImages.length
-      ? (isRingsCollage
-          ? previewImages.slice(0,4).map((image, i) => `<div class="collage-item"><img src="${escapeHtml(image)}" alt="${escapeHtml(entry.name)} ring ${i+1}" loading="lazy" onerror="this.parentElement.style.display='none';"></div>`).join("")
+      ? (isCollage
+          ? previewImages.slice(0, 4).map((image, i) =>
+              `<div class="collage-item"><img src="${escapeHtml(image)}" alt="${escapeHtml(entry.name)} product ${i + 1}" loading="lazy" onerror="this.parentElement.style.display='none';"></div>`
+            ).join("")
           : `<img src="${escapeHtml(previewImages[0])}" alt="${escapeHtml(entry.name)}" loading="lazy" onerror="this.style.display='none'; this.parentElement.classList.add('no-image');">`)
       : `<div class="no-image" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:34px;color:var(--wine);">ANVI</div>`;
 
