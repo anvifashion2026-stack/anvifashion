@@ -212,38 +212,48 @@ nav.links a:hover::after{width:100%;}
   .hero-festival-note{font-size:12px!important;}
 }
 
-/* -------- animated festival scenes -------- */
+/* -------- premium animated festival scenes -------- */
 .festival-scene{display:none;}
 .hero.festival-diwali .festival-scene-diwali,
 .hero.festival-dussehra .festival-scene-dussehra,
 .hero.festival-christmas .festival-scene-christmas,
 .hero.festival-pongal .festival-scene-pongal{display:block;}
 
-/* Natural diya movement: flame grows, leans and settles while the lamp gently shakes. */
-.festival-diyas{position:absolute;right:4%;bottom:8%;display:flex;gap:10px;align-items:flex-end;opacity:.9;z-index:2;}
-.festival-diya{width:30px;height:14px;border-radius:0 0 18px 18px;background:var(--festival-accent);position:relative;box-shadow:0 4px 14px rgba(0,0,0,.22);animation:diyaSway 2.7s ease-in-out infinite;}
-.festival-diya:nth-child(2){animation-delay:-.8s}.festival-diya:nth-child(3){animation-delay:-1.5s}
-.festival-diya.small{transform:scale(.72);transform-origin:bottom center;}
-.festival-diya i{position:absolute;left:50%;bottom:9px;transform:translateX(-50%);width:9px;height:15px;border-radius:70% 30% 65% 35%;background:#fff3b0;box-shadow:0 0 12px #ffd66b,0 0 25px rgba(255,197,65,.55);animation:flameDance .8s ease-in-out infinite alternate;}
-.festival-diya i::after{content:"";position:absolute;inset:2px 3px 3px;border-radius:70% 30% 65% 35%;background:#fffdf0;}
-@keyframes diyaSway{0%,100%{transform:rotate(-1deg) translateY(0)}50%{transform:rotate(2deg) translateY(-2px)}75%{transform:rotate(-1deg) translateY(1px)}}
-@keyframes flameDance{0%{transform:translateX(-50%) scale(.78,.9) rotate(-5deg)}45%{transform:translateX(-50%) scale(1.08,1.22) rotate(4deg)}100%{transform:translateX(-50%) scale(.88,1.08) rotate(-2deg)}}
+/* Premium diya: layered SVG + organic flame animation instead of an emoji/basic CSS shape. */
+.festival-lamps{position:absolute;right:4%;bottom:7%;z-index:4;display:flex;align-items:flex-end;gap:18px;pointer-events:none;}
+.festival-diya-svg{width:108px;height:88px;overflow:visible;filter:drop-shadow(0 8px 12px rgba(0,0,0,.28));animation:diyaBreathe 3.8s ease-in-out infinite;}
+.festival-diya-svg.small{width:82px;height:68px;animation-delay:-1.1s;opacity:.92;}
+.festival-diya-svg:nth-child(3){animation-delay:-2.2s;opacity:.86;}
+.diya-flame{transform-origin:50% 88%;animation:realFlame 1.15s ease-in-out infinite;}
+.diya-flame-core{transform-origin:50% 88%;animation:realFlameCore .72s ease-in-out infinite alternate;}
+.diya-glow{transform-origin:50% 55%;animation:diyaGlow 1.8s ease-in-out infinite;}
+@keyframes diyaBreathe{0%,100%{transform:translateY(0) rotate(-.8deg)}35%{transform:translateY(-2px) rotate(.6deg)}65%{transform:translateY(1px) rotate(-.3deg)}}
+@keyframes realFlame{0%,100%{transform:translate(0,0) scale(.92,1) rotate(-3deg);opacity:.9}25%{transform:translate(-1px,-1px) scale(1.05,1.12) rotate(4deg);opacity:1}52%{transform:translate(1px,0) scale(.88,1.2) rotate(-5deg);opacity:.95}78%{transform:translate(-1px,1px) scale(1.02,.94) rotate(2deg);opacity:1}}
+@keyframes realFlameCore{from{transform:scale(.82,.9) translateY(1px)}to{transform:scale(1.08,1.13) translateY(-1px)}}
+@keyframes diyaGlow{0%,100%{opacity:.38;transform:scale(.9)}50%{opacity:.72;transform:scale(1.08)}}
 
-/* Diwali fireworks: delayed bursts give the impression of repeated distant fireworks. */
-.festival-fireworks{position:absolute;inset:0;z-index:1;}
-.firework{position:absolute;width:54px;height:54px;border-radius:50%;opacity:0;animation:fireworkBurst 3.6s ease-out infinite;}
-.firework::before,.firework::after,.firework i,.firework b,.firework em{content:"";position:absolute;left:50%;top:50%;width:4px;height:24px;border-radius:50%;background:var(--festival-accent);box-shadow:0 0 10px var(--festival-accent);transform-origin:50% 100%;}
-.firework::before{transform:translate(-50%,-100%) rotate(0deg)}
-.firework::after{transform:translate(-50%,-100%) rotate(90deg)}
-.firework i{transform:translate(-50%,-100%) rotate(45deg)}
-.firework b{transform:translate(-50%,-100%) rotate(135deg)}
-.firework em{transform:translate(-50%,-100%) rotate(22deg);height:19px;}
-.fw1{right:22%;top:14%;animation-delay:0s}.fw2{right:8%;top:31%;animation-delay:1.25s}.fw3{right:31%;top:40%;animation-delay:2.25s}
-@keyframes fireworkBurst{0%,55%{opacity:0;transform:scale(.1)}60%{opacity:.2}72%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.7)}}
-.cracker{position:absolute;right:18%;bottom:25%;font-size:28px;color:var(--festival-accent);animation:crackerPop 2.4s ease-in-out infinite;}
-@keyframes crackerPop{0%,70%,100%{transform:scale(.65) rotate(0);opacity:.15}78%{transform:scale(1.35) rotate(18deg);opacity:1}86%{transform:scale(.9) rotate(-12deg);opacity:.55}}
+/* Canvas carries the more natural particle physics: launch trail, burst, falling sparks,
+   flower-pot fountains and handheld sparklers. */
+.festival-particles{position:absolute;inset:0;width:100%;height:100%;z-index:3;pointer-events:none;mix-blend-mode:screen;}
+.festival-ground-glow{position:absolute;right:5%;bottom:2%;width:360px;height:150px;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,rgba(255,179,65,.22),transparent 68%);filter:blur(8px);opacity:.8;}
 
-/* Christmas: stars twinkle independently and Santa's deer cart crosses the hero slowly. */
+/* Hand-held sparklers: a physical stick plus a tiny animated hot tip. */
+.festival-sparklers{position:absolute;right:17%;bottom:17%;z-index:4;display:flex;gap:58px;transform:rotate(-9deg);pointer-events:none;}
+.festival-sparklers span{position:relative;width:2px;height:72px;background:linear-gradient(#d7d7d7,#777);transform:rotate(7deg);transform-origin:bottom center;opacity:.8;}
+.festival-sparklers span i{position:absolute;left:50%;top:-4px;width:9px;height:9px;border-radius:50%;transform:translateX(-50%);background:#fff4b0;box-shadow:0 0 7px 3px rgba(255,190,58,.9),0 0 18px 7px rgba(255,120,20,.35);animation:sparklerTip .42s steps(2,end) infinite;}
+.festival-sparklers span:nth-child(2){height:58px;transform:rotate(-5deg);animation-delay:-.18s;}
+.festival-sparklers span:nth-child(2) i{animation-delay:-.23s;}
+@keyframes sparklerTip{0%,100%{transform:translateX(-50%) scale(.75);opacity:.72}35%{transform:translateX(-50%) scale(1.25);opacity:1}70%{transform:translateX(-50%) scale(.9);opacity:.85}}
+
+/* Navratri/Dussehra atmosphere inspired by the supplied reference: soft mandala/arch geometry,
+   but kept subtle so the jewellery CTA remains the visual focus. */
+.hero.festival-dussehra::after{background:
+  radial-gradient(circle at 82% 22%,rgba(240,179,94,.12),transparent 24%),
+  repeating-conic-gradient(from 0deg at 84% 18%,rgba(240,179,94,.12) 0deg 3deg,transparent 3deg 18deg);
+  width:300px;height:300px;left:auto;right:-90px;bottom:auto;top:-95px;border-radius:50%;transform:none;opacity:.55;}
+.hero.festival-dussehra .festival-ground-glow{background:radial-gradient(ellipse at center,rgba(255,125,30,.26),transparent 68%);}
+
+/* Christmas and Pongal remain lightweight but now share the same premium layering. */
 .festival-christmas{position:absolute;inset:0;z-index:2;overflow:hidden;}
 .xstar{position:absolute;color:#fff2bf;text-shadow:0 0 12px #fff1a8;font-size:18px;animation:twinkleStar 1.7s ease-in-out infinite;}
 .xs1{right:13%;top:13%}.xs2{right:30%;top:24%;animation-delay:-.6s}.xs3{right:8%;top:48%;animation-delay:-1.1s}.xs4{right:40%;top:12%;animation-delay:-.3s}
@@ -257,7 +267,6 @@ nav.links a:hover::after{width:100%;}
 @keyframes sleighBob{50%{transform:translateY(-3px) rotate(-1deg)}}
 @keyframes santaBob{50%{transform:translateY(-4px) rotate(2deg)}}
 
-/* Pongal: steaming pot and a farmer riding a bullock cart move gently across the festive background. */
 .festival-pongal{position:absolute;inset:0;z-index:2;overflow:hidden;}
 .pongal-pot{position:absolute;right:10%;bottom:8%;font-size:56px;animation:potBoil 2s ease-in-out infinite;}
 .pongal-pot .pot{display:block;filter:drop-shadow(0 5px 8px rgba(0,0,0,.25));}
@@ -274,15 +283,17 @@ nav.links a:hover::after{width:100%;}
 @keyframes bullockWalk{from{transform:scaleX(-1) translateY(0)}to{transform:scaleX(-1) translateY(-3px)}}
 
 @media(max-width:860px){
-  .festival-diyas{right:5%;bottom:5%;transform:scale(.8);transform-origin:right bottom;}
-  .firework{transform:scale(.75)}
-  .santa-sleigh{font-size:29px;bottom:9%;}
-  .santa-sleigh .deer{font-size:33px}.santa-sleigh .sleigh{font-size:29px}.santa-sleigh .santa{font-size:28px}
+  .festival-lamps{right:2%;bottom:4%;transform:scale(.72);transform-origin:right bottom;gap:8px;}
+  .festival-particles{opacity:.78;}
+  .festival-ground-glow{right:-60px;transform:scale(.72);transform-origin:right bottom;}
+  .santa-sleigh{font-size:29px;bottom:9%;}.santa-sleigh .deer{font-size:33px}.santa-sleigh .sleigh{font-size:29px}.santa-sleigh .santa{font-size:28px}
   .bullock-cart{font-size:29px;bottom:7%;}.bullock-cart .bullocks{font-size:30px}.bullock-cart .cart{font-size:34px}.bullock-cart .farmer{font-size:25px}
   .pongal-pot{font-size:43px;right:7%;}
 }
 @media(prefers-reduced-motion:reduce){
-  .festival-scene *,.festival-scene{animation:none!important;}
+  .festival-scene *,.festival-scene,.festival-particles{animation:none!important;}
+}
+
 }
 
 /* -------- about strip -------- */
@@ -709,20 +720,42 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
   <div class="festival-decor" aria-hidden="true">
     <span class="fest-dot d1"></span><span class="fest-dot d2"></span><span class="fest-dot d3"></span><span class="fest-dot d4"></span>
 
-    <!-- Diwali / Dussehra diya animation -->
-    <div class="festival-diyas festival-scene festival-scene-diwali festival-scene-dussehra">
-      <span class="festival-diya small"><i></i></span>
-      <span class="festival-diya"><i></i></span>
-      <span class="festival-diya small"><i></i></span>
+    <!-- Premium Diya lamps: used for both Navratri/Dussehra and Diwali. -->
+    <div class="festival-lamps festival-scene festival-scene-diwali festival-scene-dussehra" aria-hidden="true">
+      <svg class="festival-diya-svg small" viewBox="0 0 120 96" aria-hidden="true">
+        <defs><linearGradient id="brassA" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffe19a"/><stop offset=".35" stop-color="#b97824"/><stop offset=".7" stop-color="#70400f"/><stop offset="1" stop-color="#3a2109"/></linearGradient><radialGradient id="glowA"><stop stop-color="#ffd66b" stop-opacity=".55"/><stop offset="1" stop-color="#ff7a00" stop-opacity="0"/></radialGradient><linearGradient id="flameA" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#fff7bd"/><stop offset=".45" stop-color="#ffc12f"/><stop offset="1" stop-color="#ff5b12" stop-opacity=".2"/></linearGradient></defs>
+        <ellipse class="diya-glow" cx="60" cy="34" rx="42" ry="32" fill="url(#glowA)"/>
+        <path d="M15 56 Q60 78 105 56 Q99 86 60 90 Q21 86 15 56Z" fill="url(#brassA)" stroke="#f1bd58" stroke-width="1.2"/>
+        <path d="M22 57 Q60 69 98 57" fill="none" stroke="#f6d58c" stroke-width="3" opacity=".75"/>
+        <path d="M30 65 Q60 75 90 65" fill="none" stroke="#6c3a0e" stroke-width="2" opacity=".7"/>
+        <path class="diya-flame" d="M60 57 C47 46 53 35 64 25 C67 37 77 43 69 54 C66 58 63 59 60 57Z" fill="url(#flameA)"/>
+        <path class="diya-flame-core" d="M61 55 C56 49 59 43 65 37 C67 45 70 49 66 54 C65 56 63 56 61 55Z" fill="#fffdf0"/>
+        <circle cx="30" cy="62" r="2" fill="#f6d58c"/><circle cx="90" cy="62" r="2" fill="#f6d58c"/>
+      </svg>
+      <svg class="festival-diya-svg" viewBox="0 0 120 96" aria-hidden="true">
+        <defs><linearGradient id="brassB" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffe9ad"/><stop offset=".3" stop-color="#c4872e"/><stop offset=".72" stop-color="#70400f"/><stop offset="1" stop-color="#2e1806"/></linearGradient><radialGradient id="glowB"><stop stop-color="#ffd66b" stop-opacity=".62"/><stop offset="1" stop-color="#ff7a00" stop-opacity="0"/></radialGradient><linearGradient id="flameB" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#fffbd2"/><stop offset=".4" stop-color="#ffca39"/><stop offset="1" stop-color="#ff5b12" stop-opacity=".18"/></linearGradient></defs>
+        <ellipse class="diya-glow" cx="60" cy="34" rx="44" ry="34" fill="url(#glowB)"/>
+        <path d="M12 55 Q60 79 108 55 Q101 88 60 92 Q19 88 12 55Z" fill="url(#brassB)" stroke="#f5cf76" stroke-width="1.4"/>
+        <path d="M18 56 Q60 70 102 56" fill="none" stroke="#ffe3a0" stroke-width="3.2" opacity=".8"/>
+        <path d="M28 66 Q60 76 92 66" fill="none" stroke="#6c3a0e" stroke-width="2" opacity=".7"/>
+        <path class="diya-flame" d="M60 58 C45 47 53 34 65 23 C67 36 79 43 69 55 C66 59 63 60 60 58Z" fill="url(#flameB)"/>
+        <path class="diya-flame-core" d="M61 56 C55 49 59 42 65 35 C67 44 71 49 66 55 C65 57 63 57 61 56Z" fill="#fffef1"/>
+        <circle cx="29" cy="62" r="2.2" fill="#ffe3a0"/><circle cx="91" cy="62" r="2.2" fill="#ffe3a0"/>
+      </svg>
+      <svg class="festival-diya-svg small" viewBox="0 0 120 96" aria-hidden="true">
+        <defs><linearGradient id="brassC" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffe19a"/><stop offset=".35" stop-color="#b97824"/><stop offset=".7" stop-color="#70400f"/><stop offset="1" stop-color="#3a2109"/></linearGradient><radialGradient id="glowC"><stop stop-color="#ffd66b" stop-opacity=".55"/><stop offset="1" stop-color="#ff7a00" stop-opacity="0"/></radialGradient><linearGradient id="flameC" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#fff7bd"/><stop offset=".45" stop-color="#ffc12f"/><stop offset="1" stop-color="#ff5b12" stop-opacity=".2"/></linearGradient></defs>
+        <ellipse class="diya-glow" cx="60" cy="34" rx="42" ry="32" fill="url(#glowC)"/>
+        <path d="M15 56 Q60 78 105 56 Q99 86 60 90 Q21 86 15 56Z" fill="url(#brassC)" stroke="#f1bd58" stroke-width="1.2"/>
+        <path d="M22 57 Q60 69 98 57" fill="none" stroke="#f6d58c" stroke-width="3" opacity=".75"/>
+        <path class="diya-flame" d="M60 57 C47 46 53 35 64 25 C67 37 77 43 69 54 C66 58 63 59 60 57Z" fill="url(#flameC)"/>
+        <path class="diya-flame-core" d="M61 55 C56 49 59 43 65 37 C67 45 70 49 66 54 C65 56 63 56 61 55Z" fill="#fffdf0"/>
+      </svg>
     </div>
 
-    <!-- Diwali fireworks / crackers -->
-    <div class="festival-fireworks festival-scene festival-scene-diwali" aria-hidden="true">
-      <span class="firework fw1"><i></i><b></b><em></em></span>
-      <span class="firework fw2"><i></i><b></b><em></em></span>
-      <span class="firework fw3"><i></i><b></b><em></em></span>
-      <span class="cracker">✦</span>
-    </div>
+    <!-- High-fidelity particle layer: fireworks + flower-pot fountains + sparklers. -->
+    <canvas id="festivalParticles" class="festival-particles festival-scene festival-scene-diwali festival-scene-dussehra" aria-hidden="true"></canvas>
+    <div class="festival-ground-glow festival-scene festival-scene-diwali festival-scene-dussehra" aria-hidden="true"></div>
+    <div class="festival-sparklers festival-scene festival-scene-diwali festival-scene-dussehra" aria-hidden="true"><span><i></i></span><span><i></i></span></div>
 
     <!-- Christmas: twinkling stars + Santa/deer sleigh -->
     <div class="festival-christmas festival-scene festival-scene-christmas">
@@ -2643,7 +2676,7 @@ loadProducts();
   if(!root) return;
 
   const month = new Date().getMonth(); // 0 = January
-  const sceneClassByMonth = {0:'festival-pongal',8:'festival-dussehra',9:'festival-diwali',10:'festival-christmas'};
+  const sceneClassByMonth = {0:'festival-pongal',9:'festival-dussehra',10:'festival-diwali',11:'festival-christmas'};
   const sceneClass = sceneClassByMonth[month];
   if(sceneClass) root.classList.add(sceneClass);
   const themes = {
@@ -2656,12 +2689,13 @@ loadProducts();
     6: { icon:'🪷', badge:'Monsoon Festive Edit', eyebrow:'Soft glow • Statement details', title:'Find your festive<br><em>little something.</em>', note:'Add a graceful glow to rainy-day celebrations with timeless ANVI fashion jewellery.', accent:'#D7B9D9' },
     7: { icon:'🇮🇳', badge:'Onam • Ganesh Chaturthi Edit', eyebrow:'Festive season begins', title:'Celebrate tradition,<br><em>style it your way.</em>', note:'Festive jewellery for family celebrations, traditional looks and modern styling.', accent:'#E8C56A' },
     8: { icon:'🏹', badge:'Navratri • Dussehra Edit', eyebrow:'The festive season is here', title:'Celebrate Dussehra,<br><em>shine with ANVI.</em>', note:'Festive-ready jewellery for Navratri nights, Dussehra celebrations and every beautiful gathering.', accent:'#F0B35E' },
-    9: { icon:'🪔', badge:'Diwali Edit', eyebrow:'Light up your festive look', title:'Diwali sparkle,<br><em>the ANVI way.</em>', note:'Celebrate the festival of lights with golden glow, statement details and jewellery made for festive nights.', accent:'#F2C65D' },
-    10:{ icon:'🎄', badge:'Christmas Edit', eyebrow:'Merry sparkle season', title:'Christmas sparkle,<br><em>made beautifully.</em>', note:'Add a touch of festive glamour to parties, gifting and year-end celebrations with ANVI.', accent:'#DDBB7B' },
-    11:{ icon:'🎁', badge:'New Year • Festive Edit', eyebrow:'End the year in style', title:'One more celebration,<br><em>one more sparkle.</em>', note:'Finish the year with jewellery made for parties, gifting and memorable celebrations.', accent:'#E3C27A' }
+    9: { icon:'🏹', badge:'Navratri • Dussehra Edit', eyebrow:'The festive season is here', title:'Celebrate Dussehra,<br><em>shine with ANVI.</em>', note:'Festive-ready jewellery for Navratri nights, Dussehra celebrations and every beautiful gathering.', accent:'#F0B35E' },
+    10:{ icon:'🪔', badge:'Diwali Edit', eyebrow:'Light up your festive look', title:'Diwali sparkle,<br><em>the ANVI way.</em>', note:'Celebrate the festival of lights with golden glow, statement details and jewellery made for festive nights.', accent:'#F2C65D' },
+    11:{ icon:'🎄', badge:'Christmas Edit', eyebrow:'Merry sparkle season', title:'Christmas sparkle,<br><em>made beautifully.</em>', note:'Add a touch of festive glamour to parties, gifting and year-end celebrations with ANVI.', accent:'#DDBB7B' }
   };
 
-  const theme = themes[month] || themes[9];
+  // Fallback to the current month entry; themes are driven by the visitor's local system date.
+  const theme = themes[month] || themes[0];
   root.style.setProperty('--festival-accent', theme.accent);
   root.style.setProperty('--festival-glow', 'rgba(217,191,148,.24)');
   const setText = (id, value) => { const el = document.getElementById(id); if(el) el.innerHTML = value; };
@@ -2670,6 +2704,94 @@ loadProducts();
   setText('heroEyebrow', theme.eyebrow);
   setText('heroTitle', theme.title);
   setText('heroFestivalNote', theme.note);
+})();
+
+/* -------- realistic Diwali / Dussehra particle animation --------
+   Lightweight canvas particle system: launch trails, burst physics, flower-pot fountains,
+   and hand-held sparklers. It intentionally avoids external animation libraries. */
+(function initFestivalParticles(){
+  const canvas=document.getElementById('festivalParticles');
+  const root=document.querySelector('[data-festival-theme]');
+  if(!canvas || !root) return;
+  const reduce=window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if(reduce) return;
+  const ctx=canvas.getContext('2d');
+  if(!ctx) return;
+  let w=0,h=0,dpr=1,particles=[],rockets=[],last=0,nextLaunch=0,nextFountain=0,raf=0;
+  const rand=(a,b)=>a+Math.random()*(b-a);
+  const resize=()=>{ const r=canvas.getBoundingClientRect(); dpr=Math.min(2,window.devicePixelRatio||1); w=Math.max(1,r.width); h=Math.max(1,r.height); canvas.width=Math.round(w*dpr); canvas.height=Math.round(h*dpr); ctx.setTransform(dpr,0,0,dpr,0,0); };
+  resize(); window.addEventListener('resize',resize,{passive:true});
+  const isDiwali=()=>root.classList.contains('festival-diwali');
+  function burst(x,y,scale=1){
+    const count=Math.round(rand(32,48)*scale);
+    const palette=isDiwali()?['#ffd45b','#fff1ad','#f3a54a','#e87843','#e9c9ff']:['#ffd76a','#fff3bd','#f4a85c','#e77d5b','#d8a7ff'];
+    for(let i=0;i<count;i++){
+      const a=(Math.PI*2*i/count)+rand(-.06,.06), speed=rand(45,125)*scale;
+      particles.push({x,y,px:x,py:y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:rand(.75,1.45),max:1.45,size:rand(.7,1.9),color:palette[i%palette.length],gravity:rand(12,28),drag:.982,glow:rand(5,13)});
+    }
+    // secondary glitter ring
+    for(let i=0;i<10;i++){
+      const a=Math.random()*Math.PI*2;
+      particles.push({x:x+Math.cos(a)*8,y:y+Math.sin(a)*8,px:x,py:y,vx:Math.cos(a)*rand(20,50),vy:Math.sin(a)*rand(20,50),life:rand(.35,.7),max:.7,size:rand(.5,1.1),color:'#fff9d8',gravity:8,drag:.99,glow:10});
+    }
+  }
+  function launch(){
+    const x=rand(w*.56,w*.95), y=h+8, tx=rand(w*.52,w*.92), ty=rand(h*.10,h*.48);
+    rockets.push({x,y,px:x,py:y,tx,ty,vy:rand(-330,-250),vx:(tx-x)/2.1,life:0,delay:rand(.05,.2)});
+  }
+  function fountain(x,y){
+    // Gold fountain/flower-pot: upward jets with gravity and a soft ground glow.
+    for(let i=0;i<18;i++){
+      const a=rand(-2.55,-.59), speed=rand(70,150);
+      particles.push({x:x+rand(-8,8),y,px:x,py:y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:rand(.55,1.1),max:1.1,size:rand(.8,1.7),color:i%4?'#ffc94f':'#fff0a6',gravity:rand(75,120),drag:.988,glow:8});
+    }
+    for(let i=0;i<7;i++){
+      particles.push({x:x+rand(-13,13),y:y+rand(-2,2),px:x,py:y,vx:rand(-22,22),vy:rand(-35,-10),life:rand(.35,.7),max:.7,size:1,color:'#ff8b38',gravity:55,drag:.98,glow:5});
+    }
+  }
+  function sparkler(x,y){
+    for(let i=0;i<5;i++){
+      const a=Math.random()*Math.PI*2, speed=rand(25,70);
+      particles.push({x:x+rand(-1,1),y:y+rand(-1,1),px:x,py:y,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,life:rand(.18,.42),max:.42,size:rand(.5,1.3),color:Math.random()>.2?'#ffd86b':'#fff7ce',gravity:20,drag:.97,glow:6});
+    }
+  }
+  function drawFlowerPot(x,y){
+    ctx.save();
+    ctx.globalAlpha=.88;
+    ctx.shadowBlur=10;ctx.shadowColor='rgba(255,160,40,.55)';
+    const g=ctx.createLinearGradient(x,y-17,x,y+5);g.addColorStop(0,'#e8a343');g.addColorStop(.45,'#9a541e');g.addColorStop(1,'#4c260d');
+    ctx.fillStyle=g;
+    ctx.beginPath();ctx.moveTo(x-11,y-2);ctx.lineTo(x+11,y-2);ctx.lineTo(x+7,y+8);ctx.lineTo(x-7,y+8);ctx.closePath();ctx.fill();
+    ctx.fillStyle='#f0bd5a';ctx.fillRect(x-13,y-5,26,4);
+    ctx.restore();
+  }
+  function frame(t){
+    const dt=Math.min(.033,(t-last||16)/1000); last=t;
+    ctx.clearRect(0,0,w,h);
+    const diwali=isDiwali();
+    const launchEvery=diwali?1250:2100, fountainEvery=diwali?3200:3900;
+    if(t>nextLaunch){ launch(); nextLaunch=t+launchEvery+rand(-350,420); }
+    if(t>nextFountain){ fountain(w*rand(.70,.93),h*rand(.82,.92)); nextFountain=t+fountainEvery+rand(-500,650); }
+    // Fixed decorative flower-pot bases, drawn before sparks.
+    drawFlowerPot(w*.78,h*.91); drawFlowerPot(w*.92,h*.94);
+    for(let i=rockets.length-1;i>=0;i--){
+      const r=rockets[i]; r.life+=dt; r.px=r.x;r.py=r.y;r.x+=r.vx*dt;r.y+=r.vy*dt;r.vy+=90*dt;
+      ctx.save();ctx.globalAlpha=.72;ctx.strokeStyle='#ffd36a';ctx.lineWidth=1.4;ctx.shadowBlur=8;ctx.shadowColor='#ff9d32';ctx.beginPath();ctx.moveTo(r.px,r.py);ctx.lineTo(r.x,r.y);ctx.stroke();ctx.restore();
+      if(r.vy>-35 || r.y<=r.ty){ burst(r.x,r.y,rand(.78,1.12)); rockets.splice(i,1); }
+    }
+    for(let i=particles.length-1;i>=0;i--){
+      const p=particles[i]; p.life-=dt; if(p.life<=0){particles.splice(i,1);continue;}
+      p.px=p.x;p.py=p.y;p.vx*=p.drag;p.vy=p.vy*p.drag+p.gravity*dt;p.x+=p.vx*dt;p.y+=p.vy*dt;
+      const alpha=Math.max(0,p.life/p.max);
+      ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=p.color;ctx.fillStyle=p.color;ctx.lineWidth=p.size;ctx.shadowBlur=p.glow;ctx.shadowColor=p.color;
+      ctx.beginPath();ctx.moveTo(p.px,p.py);ctx.lineTo(p.x,p.y);ctx.stroke();ctx.beginPath();ctx.arc(p.x,p.y,p.size*.65,0,Math.PI*2);ctx.fill();ctx.restore();
+    }
+    // Two sparklers near the right edge, kept subtle so they don't compete with the CTA.
+    const sy=h*.74; sparkler(w*.74,sy); sparkler(w*.86,sy+rand(-5,5));
+    raf=requestAnimationFrame(frame);
+  }
+  raf=requestAnimationFrame(frame);
+  window.addEventListener('pagehide',()=>cancelAnimationFrame(raf),{once:true});
 })();
 </script>
 <!-- ANVI WhatsApp Floating Chat Button -->
