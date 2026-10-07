@@ -253,42 +253,55 @@ nav.links a:hover::after{width:100%;}
   width:300px;height:300px;left:auto;right:-90px;bottom:auto;top:-95px;border-radius:50%;transform:none;opacity:.55;}
 .hero.festival-dussehra .festival-ground-glow{background:radial-gradient(ellipse at center,rgba(255,125,30,.26),transparent 68%);}
 
-/* Christmas and Pongal remain lightweight but now share the same premium layering. */
+/* Christmas: a single illustrated SVG scene travels across the hero like an animated GIF. */
 .festival-christmas{position:absolute;inset:0;z-index:2;overflow:hidden;}
 .xstar{position:absolute;color:#fff2bf;text-shadow:0 0 12px #fff1a8;font-size:18px;animation:twinkleStar 1.7s ease-in-out infinite;}
 .xs1{right:13%;top:13%}.xs2{right:30%;top:24%;animation-delay:-.6s}.xs3{right:8%;top:48%;animation-delay:-1.1s}.xs4{right:40%;top:12%;animation-delay:-.3s}
 @keyframes twinkleStar{0%,100%{opacity:.25;transform:scale(.65) rotate(0)}50%{opacity:1;transform:scale(1.35) rotate(18deg)}}
-.santa-sleigh{position:absolute;left:-180px;bottom:12%;display:flex;align-items:flex-end;gap:3px;font-size:38px;white-space:nowrap;filter:drop-shadow(0 5px 8px rgba(0,0,0,.25));animation:santaRide 15s linear infinite;}
-.santa-sleigh .deer{font-size:42px;transform:scaleX(-1);display:inline-block;animation:deerGallop .45s ease-in-out infinite alternate;}
-.santa-sleigh .sleigh{font-size:36px;margin-left:-7px;animation:sleighBob .8s ease-in-out infinite;}
-.santa-sleigh .santa{font-size:35px;margin-left:-18px;animation:santaBob .9s ease-in-out infinite;}
-@keyframes santaRide{0%{transform:translateX(0)}100%{transform:translateX(calc(100vw + 360px))}}
-@keyframes deerGallop{from{transform:scaleX(-1) translateY(0)}to{transform:scaleX(-1) translateY(-4px)}}
-@keyframes sleighBob{50%{transform:translateY(-3px) rotate(-1deg)}}
-@keyframes santaBob{50%{transform:translateY(-4px) rotate(2deg)}}
+.christmas-flight{position:absolute;left:-540px;bottom:8%;width:min(520px,78vw);filter:drop-shadow(0 10px 10px rgba(0,0,0,.22));animation:christmasFlight 19s linear infinite;}
+.christmas-art{display:block;width:100%;height:auto;overflow:visible;}
+.christmas-reindeer{transform-origin:95px 90px;animation:reindeerBound .52s ease-in-out infinite alternate;}
+.reindeer-legs{animation:legTrot .34s ease-in-out infinite alternate;}
+.christmas-sleigh-group{transform-origin:270px 130px;animation:sleighGlide 1.2s ease-in-out infinite;}
+.sleigh-gift{animation:giftBounce .9s ease-in-out infinite alternate;transform-origin:300px 105px;}
+@keyframes christmasFlight{0%{transform:translateX(0) translateY(0)}15%{transform:translateX(18vw) translateY(-8px)}50%{transform:translateX(75vw) translateY(-24px)}85%{transform:translateX(145vw) translateY(-4px)}100%{transform:translateX(calc(100vw + 560px)) translateY(0)}}
+@keyframes reindeerBound{to{transform:translateY(-5px) rotate(-1deg)}}
+@keyframes legTrot{to{transform:translateY(-4px) rotate(3deg)}}
+@keyframes sleighGlide{50%{transform:translateY(-5px) rotate(-1deg)}}
+@keyframes giftBounce{to{transform:translateY(-3px) rotate(2deg)}}
 
+/* Pongal: traditional clay pot boiling over, steam, sugarcane and a drawn bullock cart/farmer. */
 .festival-pongal{position:absolute;inset:0;z-index:2;overflow:hidden;}
-.pongal-pot{position:absolute;right:10%;bottom:8%;font-size:56px;animation:potBoil 2s ease-in-out infinite;}
-.pongal-pot .pot{display:block;filter:drop-shadow(0 5px 8px rgba(0,0,0,.25));}
-.steam{position:absolute;left:43%;top:-10px;font-size:30px;color:#fff5df;opacity:0;animation:steamRise 2.2s ease-out infinite;}
-.steam.s2{left:58%;animation-delay:-1s}
-@keyframes potBoil{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-5px) rotate(1deg)}}
-@keyframes steamRise{0%{opacity:0;transform:translateY(12px) scale(.7)}35%{opacity:.8}100%{opacity:0;transform:translateY(-42px) scale(1.2)}}
-.bullock-cart{position:absolute;left:-190px;bottom:10%;display:flex;align-items:flex-end;gap:0;font-size:39px;white-space:nowrap;animation:bullockRide 18s linear infinite;filter:drop-shadow(0 5px 7px rgba(0,0,0,.22));}
-.bullock-cart .farmer{font-size:31px;margin-left:70px;margin-right:-4px;transform:translateY(-22px);animation:farmerBob 1s ease-in-out infinite;}
-.bullock-cart .bullocks{font-size:39px;letter-spacing:-12px;transform:scaleX(-1);display:inline-block;animation:bullockWalk .55s ease-in-out infinite alternate;}
-.bullock-cart .cart{font-size:45px;margin-left:4px;}
-@keyframes bullockRide{0%{transform:translateX(0)}100%{transform:translateX(calc(100vw + 390px))}}
-@keyframes farmerBob{50%{transform:translateY(-26px) rotate(1deg)}}
-@keyframes bullockWalk{from{transform:scaleX(-1) translateY(0)}to{transform:scaleX(-1) translateY(-3px)}}
-
+.pongal-sun{position:absolute;right:8%;top:12%;width:68px;height:68px;border-radius:50%;background:radial-gradient(circle,#ffe9a4 0 28%,rgba(255,207,99,.26) 60%,transparent 72%);animation:pongalSunGlow 4s ease-in-out infinite;}
+.pongal-sun:before{content:"";position:absolute;inset:12px;border:1px solid rgba(255,224,151,.65);border-radius:50%;}
+.pongal-sugarcane{position:absolute;right:0;bottom:4%;height:min(190px,38%);width:auto;filter:drop-shadow(0 5px 7px rgba(0,0,0,.2));animation:sugarcaneSway 3.8s ease-in-out infinite;transform-origin:bottom center;}
+.pongal-cooking-scene{position:absolute;right:8%;bottom:5%;width:190px;max-width:28vw;filter:drop-shadow(0 7px 9px rgba(0,0,0,.25));}
+.pongal-pot-art{display:block;width:100%;height:auto;overflow:visible;animation:potSimmer 2.5s ease-in-out infinite;}
+.pongal-overflow{transform-origin:95px 48px;animation:overflowBubble 1.5s ease-in-out infinite;}
+.pongal-flame{transform-origin:95px 164px;animation:potFire .45s ease-in-out infinite alternate;}
+.pongal-steam{position:absolute;bottom:72%;width:17px;height:43px;border-left:3px solid rgba(255,245,218,.82);border-radius:50%;filter:blur(.4px);opacity:0;animation:realSteam 2.6s ease-out infinite;}
+.pongal-steam.steam-a{left:37%}.pongal-steam.steam-b{left:52%;animation-delay:-.8s}.pongal-steam.steam-c{left:64%;animation-delay:-1.6s}
+.pongal-cart-scene{position:absolute;left:-460px;bottom:3%;width:min(440px,66vw);filter:drop-shadow(0 7px 7px rgba(0,0,0,.24));animation:pongalCartJourney 23s linear infinite;}
+.pongal-cart-art{display:block;width:100%;height:auto;overflow:visible;}
+.bullock-legs{transform-origin:80px 100px;animation:bullockStep .42s ease-in-out infinite alternate;}
+.pongal-wood-cart{transform-origin:230px 130px;animation:cartRumble .8s ease-in-out infinite;}
+.pongal-farmer-art{transform-origin:265px 90px;animation:farmerRide .9s ease-in-out infinite alternate;}
+@keyframes pongalSunGlow{50%{transform:scale(1.07);opacity:.8}}
+@keyframes sugarcaneSway{50%{transform:rotate(2deg)}}
+@keyframes potSimmer{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes overflowBubble{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-3px) scale(1.02)}}
+@keyframes potFire{to{transform:scaleY(.72) translateY(2px);opacity:.8}}
+@keyframes realSteam{0%{opacity:0;transform:translateY(14px) scale(.7)}30%{opacity:.8}100%{opacity:0;transform:translateY(-52px) scale(1.25)}}
+@keyframes pongalCartJourney{0%{transform:translateX(0) translateY(0)}45%{transform:translateX(76vw) translateY(-7px)}100%{transform:translateX(calc(100vw + 500px)) translateY(0)}}
+@keyframes bullockStep{to{transform:translateY(-3px) rotate(2deg)}}
+@keyframes cartRumble{50%{transform:translateY(-2px) rotate(.4deg)}}
+@keyframes farmerRide{to{transform:translateY(-3px) rotate(1deg)}}
 @media(max-width:860px){
-  .festival-lamps{right:2%;bottom:4%;transform:scale(.72);transform-origin:right bottom;gap:8px;}
-  .festival-particles{opacity:.78;}
-  .festival-ground-glow{right:-60px;transform:scale(.72);transform-origin:right bottom;}
-  .santa-sleigh{font-size:29px;bottom:9%;}.santa-sleigh .deer{font-size:33px}.santa-sleigh .sleigh{font-size:29px}.santa-sleigh .santa{font-size:28px}
-  .bullock-cart{font-size:29px;bottom:7%;}.bullock-cart .bullocks{font-size:30px}.bullock-cart .cart{font-size:34px}.bullock-cart .farmer{font-size:25px}
-  .pongal-pot{font-size:43px;right:7%;}
+  .christmas-flight{bottom:9%;width:min(430px,92vw);}
+  .pongal-cooking-scene{right:5%;width:132px;max-width:37vw;bottom:5%;}
+  .pongal-sugarcane{height:145px;right:-8px;}
+  .pongal-cart-scene{bottom:4%;width:min(340px,82vw);}
+  .pongal-sun{width:52px;height:52px;right:7%;top:12%;}
 }
 @media(prefers-reduced-motion:reduce){
   .festival-scene *,.festival-scene,.festival-particles{animation:none!important;}
@@ -753,20 +766,75 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
     </div>
 
     <!-- High-fidelity particle layer: fireworks + flower-pot fountains + sparklers. -->
-    <canvas id="festivalParticles" class="festival-particles festival-scene festival-scene-diwali festival-scene-dussehra" aria-hidden="true"></canvas>
+    <canvas id="festivalParticles" class="festival-particles festival-scene festival-scene-diwali" aria-hidden="true"></canvas>
     <div class="festival-ground-glow festival-scene festival-scene-diwali festival-scene-dussehra" aria-hidden="true"></div>
-    <div class="festival-sparklers festival-scene festival-scene-diwali festival-scene-dussehra" aria-hidden="true"><span><i></i></span><span><i></i></span></div>
+    <div class="festival-sparklers festival-scene festival-scene-diwali" aria-hidden="true"><span><i></i></span><span><i></i></span></div>
 
-    <!-- Christmas: twinkling stars + Santa/deer sleigh -->
-    <div class="festival-christmas festival-scene festival-scene-christmas">
+    <!-- Christmas: one illustrated, animated scene (not separate emoji icons). -->
+    <div class="festival-christmas festival-scene festival-scene-christmas" aria-hidden="true">
       <span class="xstar xs1">✦</span><span class="xstar xs2">✧</span><span class="xstar xs3">✦</span><span class="xstar xs4">✧</span>
-      <div class="santa-sleigh"><span class="deer">🦌</span><span class="sleigh">🛷</span><span class="santa">🎅</span></div>
+      <div class="christmas-flight">
+        <svg class="christmas-art" viewBox="0 0 520 210" role="img" aria-label="Santa riding in a sleigh pulled by reindeer">
+          <defs>
+            <linearGradient id="sleighRed" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#f4c66f"/><stop offset=".22" stop-color="#b92e35"/><stop offset="1" stop-color="#651722"/></linearGradient>
+            <linearGradient id="reindeerCoat" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#d9a46a"/><stop offset="1" stop-color="#74401f"/></linearGradient>
+          </defs>
+          <g class="christmas-reindeer">
+            <path d="M48 80 Q66 58 93 69 L116 86 L132 83 L143 67 L151 70 L146 91 L129 103 L111 101 L102 123 L95 124 L99 99 L78 96 L67 121 L60 120 L64 91 L48 88Z" fill="url(#reindeerCoat)" stroke="#4b2b20" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M141 69 L136 48 L145 57 L152 37 L157 60 L169 49 L164 73" fill="none" stroke="#8c5a30" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M48 78 L32 69 L25 76 L42 88" fill="#8c5a30"/><circle cx="148" cy="80" r="3" fill="#fff4d4"/><circle cx="149" cy="80" r="1.5" fill="#211815"/><ellipse cx="162" cy="89" rx="7" ry="5" fill="#b6383b"/>
+            <path d="M72 91 L67 145 M94 99 L103 143 M119 98 L128 141" stroke="#8c5a30" stroke-width="6" stroke-linecap="round" class="reindeer-legs"/>
+            <path d="M38 88 Q20 91 18 103" fill="none" stroke="#8c5a30" stroke-width="3"/>
+          </g>
+          <path d="M166 90 Q205 68 236 83 L257 100" fill="none" stroke="#e6c477" stroke-width="3" stroke-dasharray="5 5"/>
+          <g class="christmas-sleigh-group">
+            <path d="M207 120 Q253 140 310 119 L339 103 L333 128 Q309 153 254 148 Q221 145 207 120Z" fill="url(#sleighRed)" stroke="#f4d18a" stroke-width="4"/>
+            <path d="M215 150 Q257 171 315 151 Q330 146 340 133" fill="none" stroke="#f3cf78" stroke-width="5" stroke-linecap="round"/>
+            <path d="M227 113 L232 91 Q235 83 244 87 L255 103 L271 105" fill="#b82331" stroke="#6c1822" stroke-width="3"/>
+            <circle cx="249" cy="79" r="17" fill="#efc49c"/><path d="M231 78 Q232 54 253 59 Q269 64 266 81 L259 75 L249 82 L238 78Z" fill="#f4f0e8"/><path d="M233 70 Q246 51 266 66 L274 55 Q279 79 263 83 L236 80Z" fill="#c92f38"/><circle cx="253" cy="82" r="2" fill="#36221d"/>
+            <path d="M238 91 Q255 88 266 98 L271 113 L246 113 L235 104Z" fill="#d7333c"/><path d="M245 93 L254 108 L264 94" fill="#fff4e4"/><path d="M251 111 L260 111 L258 123 L248 123Z" fill="#f0cf78"/>
+            <g class="sleigh-gift"><rect x="283" y="91" width="23" height="24" rx="2" fill="#2f8c67" stroke="#e9d08c" stroke-width="2"/><path d="M294 91 V115 M283 101 H306" stroke="#e9d08c" stroke-width="3"/><rect x="306" y="100" width="18" height="17" rx="2" fill="#f1c45d"/><path d="M315 100 V117 M306 108 H324" stroke="#b92e35" stroke-width="2.5"/></g>
+          </g>
+        </svg>
+      </div>
     </div>
 
-    <!-- Pongal: steaming pot + farmer on bullock cart -->
-    <div class="festival-pongal festival-scene festival-scene-pongal">
-      <div class="pongal-pot"><span class="steam s1">〰</span><span class="steam s2">〰</span><span class="pot">🍲</span></div>
-      <div class="bullock-cart"><span class="farmer">👨🏽‍🌾</span><span class="bullocks">🐂🐂</span><span class="cart">🛒</span></div>
+    <!-- Pongal: illustrated traditional clay pot, sugarcane, sun and a bullock cart with farmer. -->
+    <div class="festival-pongal festival-scene festival-scene-pongal" aria-hidden="true">
+      <div class="pongal-sun"><span></span></div>
+      <svg class="pongal-sugarcane" viewBox="0 0 110 190" aria-hidden="true"><path d="M24 184 L38 18 M45 184 L59 7 M66 184 L83 24" stroke="#4f9b4e" stroke-width="9" stroke-linecap="round"/><path d="M34 58 Q4 39 8 21 Q34 28 38 51 M54 85 Q84 59 99 68 Q87 91 57 99 M76 48 Q58 25 67 9 Q89 23 81 45 M23 120 Q4 100 7 86 Q28 97 27 118" fill="#6fb85c" stroke="#367d3b" stroke-width="2"/><path d="M31 35 L27 62 M51 62 L48 91 M71 36 L67 65" stroke="#b9d98b" stroke-width="2"/></svg>
+      <div class="pongal-cooking-scene">
+        <div class="pongal-steam steam-a"></div><div class="pongal-steam steam-b"></div><div class="pongal-steam steam-c"></div>
+        <svg class="pongal-pot-art" viewBox="0 0 190 170" aria-label="Traditional clay Pongal pot overflowing with rice">
+          <defs><linearGradient id="clayPot" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f3a34e"/><stop offset=".45" stop-color="#c65328"/><stop offset="1" stop-color="#7e2b1b"/></linearGradient></defs>
+          <path d="M44 48 Q27 70 39 120 Q48 155 95 157 Q142 155 151 120 Q163 70 146 48Z" fill="url(#clayPot)" stroke="#ffd18b" stroke-width="3"/>
+          <ellipse cx="95" cy="49" rx="57" ry="17" fill="#7a2e1b" stroke="#ffd18b" stroke-width="4"/><ellipse cx="95" cy="47" rx="47" ry="10" fill="#f6dba1"/>
+          <path d="M49 45 Q63 25 78 44 Q91 18 105 42 Q121 24 140 45 Q125 58 111 49 Q96 63 80 50 Q63 60 49 45Z" fill="#fff1cc" stroke="#d89b51" stroke-width="2" class="pongal-overflow"/>
+          <path d="M57 80 Q95 91 133 80 M53 104 Q95 116 137 104 M64 129 Q95 138 126 129" fill="none" stroke="#f8c879" stroke-width="3" opacity=".8"/>
+          <path d="M20 160 Q95 148 170 160" fill="none" stroke="#f3bf62" stroke-width="4" stroke-linecap="round"/>
+          <path d="M70 166 Q61 151 75 140 Q88 155 82 166Z M96 166 Q87 151 101 140 Q114 155 108 166Z" fill="#ffb332" class="pongal-flame"/>
+        </svg>
+      </div>
+      <div class="pongal-cart-scene">
+        <svg class="pongal-cart-art" viewBox="0 0 440 190" role="img" aria-label="Traditional Pongal bullock cart with farmer">
+          <g class="pongal-bullock">
+            <path d="M28 80 Q40 54 76 60 L100 76 L123 75 L135 58 L145 61 L143 83 L124 98 L100 96 L90 130 L81 131 L83 101 L61 100 L53 132 L44 132 L48 93 L30 91Z" fill="#f4eee0" stroke="#8a745c" stroke-width="3" stroke-linejoin="round"/>
+            <path d="M134 61 L127 42 L139 50 L146 32 L151 55 L164 46 L159 68" fill="none" stroke="#bba27d" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M30 78 Q16 69 13 78 L26 89" fill="#c7b397"/><circle cx="145" cy="75" r="2.7" fill="#34271f"/><path d="M50 91 L45 136 M77 100 L87 136 M105 97 L117 134" stroke="#bba27d" stroke-width="6" stroke-linecap="round" class="bullock-legs"/>
+            <path d="M155 81 Q181 81 195 103" fill="none" stroke="#b68b50" stroke-width="3"/>
+          </g>
+          <g class="pongal-wood-cart">
+            <path d="M166 105 L311 105 L295 130 L188 130Z" fill="#9b572b" stroke="#e4b46b" stroke-width="4"/><path d="M184 111 L301 111 M190 120 L297 120" stroke="#e5b574" stroke-width="3"/>
+            <circle cx="212" cy="145" r="24" fill="#533522" stroke="#e8bd75" stroke-width="5"/><circle cx="212" cy="145" r="6" fill="#e8bd75"/><path d="M212 123 V167 M190 145 H234 M196 129 L228 161 M228 129 L196 161" stroke="#e8bd75" stroke-width="2"/>
+            <circle cx="294" cy="145" r="24" fill="#533522" stroke="#e8bd75" stroke-width="5"/><circle cx="294" cy="145" r="6" fill="#e8bd75"/><path d="M294 123 V167 M272 145 H316 M278 129 L310 161 M310 129 L278 161" stroke="#e8bd75" stroke-width="2"/>
+            <path d="M190 103 L176 79 L181 75 L204 104" fill="#b7773f" stroke="#e8bd75" stroke-width="3"/>
+          </g>
+          <g class="pongal-farmer-art">
+            <circle cx="263" cy="48" r="14" fill="#a96d43"/><path d="M247 44 Q250 26 267 29 Q281 33 278 47 L270 41 L256 45Z" fill="#f0d8a2" stroke="#7b4828" stroke-width="2"/><path d="M248 42 Q261 22 280 37 L284 29 Q289 49 274 52 L250 50Z" fill="#c78b3e"/>
+            <path d="M249 63 Q263 57 276 66 L284 98 L244 98Z" fill="#f1c56e" stroke="#8e5d2c" stroke-width="3"/><path d="M251 68 L238 91 M275 69 L292 86" fill="none" stroke="#a96d43" stroke-width="7" stroke-linecap="round"/><path d="M252 96 L249 115 M272 96 L277 115" stroke="#4c392d" stroke-width="8" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
     </div>
   </div>
   <div class="wrap">
@@ -2804,7 +2872,13 @@ loadProducts();
     const dt=Math.min(.033,(t-last||16)/1000); last=t;
     ctx.clearRect(0,0,w,h);
     const diwali=isDiwali();
-    const launchEvery=diwali?1250:2100, fountainEvery=diwali?3200:3900;
+    if(!diwali){
+      // Never render fireworks, fountains or sparkler particles outside Diwali.
+      particles.length=0; rockets.length=0;
+      raf=requestAnimationFrame(frame);
+      return;
+    }
+    const launchEvery=1250, fountainEvery=3200;
     if(t>nextLaunch){ launch(); nextLaunch=t+launchEvery+rand(-350,420); }
     if(t>nextFountain){ fountain(w*rand(.70,.93),h*rand(.82,.92)); nextFountain=t+fountainEvery+rand(-500,650); }
     // Fixed decorative flower-pot bases, drawn before sparks.
