@@ -217,7 +217,19 @@ nav.links a:hover::after{width:100%;}
 .hero.festival-diwali .festival-scene-diwali,
 .hero.festival-dussehra .festival-scene-dussehra,
 .hero.festival-christmas .festival-scene-christmas,
-.hero.festival-pongal .festival-scene-pongal{display:block;}
+.hero.festival-pongal .festival-scene-pongal,
+.hero.festival-valentine .festival-scene-valentine{display:block;}
+/* Festival artwork is deliberately static: no moving or flashing decorations. */
+.festival-particles{display:none!important;}
+.festival-scene *, .festival-scene, .festival-particles, .festival-diya-svg, .diya-flame, .diya-flame-core, .diya-glow, .festival-sparklers span i, .xstar, .christmas-flight, .christmas-reindeer, .reindeer-legs, .christmas-sleigh-group, .sleigh-gift, .pongal-sun, .pongal-sugarcane, .pongal-pot-art, .pongal-overflow, .pongal-flame, .pongal-steam, .pongal-cart-scene, .bullock-legs, .pongal-wood-cart, .pongal-farmer-art {animation:none!important;transition:none!important;}
+.festival-christmas .christmas-flight{left:auto;right:4%;bottom:5%;width:min(300px,44vw);}
+.festival-christmas .christmas-flight svg{display:none;}
+.festival-christmas .xstar{display:none;}
+.festival-pongal .pongal-cart-scene{display:none;}
+.festival-pongal .pongal-sun{box-shadow:0 0 28px rgba(255,203,89,.28);}
+.festival-valentine{position:absolute;inset:0;z-index:3;pointer-events:none;overflow:hidden;}
+.valentine-art{position:absolute;right:4%;bottom:5%;width:min(300px,43vw);height:auto;filter:drop-shadow(0 8px 12px rgba(0,0,0,.22));}
+@media(max-width:600px){.valentine-art{width:min(190px,48vw);right:2%;bottom:3%;}.festival-christmas .christmas-flight{width:min(220px,55vw);right:2%;}.pongal-cooking-scene{right:14%!important;width:150px!important;}}
 
 /* Premium diya: layered SVG + organic flame animation instead of an emoji/basic CSS shape. */
 .festival-lamps{position:absolute;right:4%;bottom:7%;z-index:4;display:flex;align-items:flex-end;gap:18px;pointer-events:none;}
@@ -799,6 +811,21 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
       </div>
     </div>
 
+    <!-- Christmas: a still, glowing evergreen tree with gifts beneath it. -->
+    <div class="festival-christmas festival-scene festival-scene-christmas" aria-hidden="true">
+      <svg class="christmas-tree-art" viewBox="0 0 300 300" style="position:absolute;right:4%;bottom:2%;width:min(300px,44vw);height:auto;filter:drop-shadow(0 8px 12px rgba(0,0,0,.24))" role="img" aria-label="Decorated Christmas tree with gifts beneath it">
+        <defs><linearGradient id="treeGreen" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#48a878"/><stop offset="1" stop-color="#075239"/></linearGradient><radialGradient id="treeGlow"><stop stop-color="#fff0a6" stop-opacity=".45"/><stop offset="1" stop-color="#fff0a6" stop-opacity="0"/></radialGradient></defs>
+        <circle cx="151" cy="130" r="120" fill="url(#treeGlow)"/>
+        <path d="M150 22 L139 47 L111 48 L128 66 L94 82 L120 92 L77 118 L113 124 L62 155 L119 157 L89 183 L133 180 L133 224 L169 224 L169 180 L211 183 L181 157 L238 155 L188 124 L224 118 L180 92 L207 82 L173 66 L190 48 L162 47Z" fill="url(#treeGreen)" stroke="#b5dfad" stroke-width="2"/>
+        <path d="M151 22 L146 42 L151 53 L156 42Z" fill="#ffe18a" stroke="#fff2bd" stroke-width="2"/>
+        <g fill="#f8d16d" stroke="#fff1b4" stroke-width="1.5"><circle cx="145" cy="74" r="5"/><circle cx="177" cy="91" r="5"/><circle cx="126" cy="111" r="5"/><circle cx="164" cy="132" r="5"/><circle cx="105" cy="151" r="5"/><circle cx="190" cy="154" r="5"/><circle cx="145" cy="174" r="5"/></g>
+        <g fill="#df5360" stroke="#ffd4a0" stroke-width="2"><circle cx="164" cy="67" r="6"/><circle cx="143" cy="96" r="6"/><circle cx="184" cy="117" r="6"/><circle cx="133" cy="143" r="6"/></g>
+        <rect x="137" y="218" width="28" height="32" rx="3" fill="#8d4d2d"/>
+        <g stroke-width="2"><rect x="62" y="235" width="55" height="42" rx="3" fill="#bd3444" stroke="#f4d58d"/><path d="M89 235 V277 M62 251 H117" stroke="#f4d58d"/><rect x="177" y="229" width="61" height="48" rx="3" fill="#2c8b66" stroke="#f4d58d"/><path d="M207 229 V277 M177 249 H238" stroke="#f4d58d"/><rect x="119" y="250" width="49" height="32" rx="3" fill="#e5b74e" stroke="#fff0b7"/><path d="M143 250 V282 M119 264 H168" stroke="#bd3444"/></g>
+        <path d="M77 230 Q89 213 101 230 M190 224 Q207 207 224 224" fill="none" stroke="#f6d88e" stroke-width="3"/>
+      </svg>
+    </div>
+
     <!-- Pongal: illustrated traditional clay pot, sugarcane, sun and a bullock cart with farmer. -->
     <div class="festival-pongal festival-scene festival-scene-pongal" aria-hidden="true">
       <div class="pongal-sun"><span></span></div>
@@ -835,6 +862,17 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
           </g>
         </svg>
       </div>
+    </div>
+    <!-- Valentine: static hearts pierced by Cupid's arrow, symbolising love. -->
+    <div class="festival-valentine festival-scene festival-scene-valentine" aria-hidden="true">
+      <svg class="valentine-art" viewBox="0 0 300 230" role="img" aria-label="Two romantic hearts crossed by an arrow">
+        <defs><linearGradient id="loveHeart" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#ffb4c6"/><stop offset=".55" stop-color="#ed5579"/><stop offset="1" stop-color="#a81e4a"/></linearGradient><linearGradient id="loveArrow" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#f7d88a"/><stop offset="1" stop-color="#fff0bf"/></linearGradient></defs>
+        <path d="M147 76 C112 35 53 48 52 91 C50 125 95 153 147 190 C199 153 244 125 242 91 C241 48 182 35 147 76Z" fill="url(#loveHeart)" stroke="#ffd9e2" stroke-width="3"/>
+        <path d="M100 87 C87 69 65 77 68 94 C70 105 83 115 100 126 C117 115 130 105 132 94 C135 77 113 69 100 87Z" fill="#ffdae3" opacity=".82"/>
+        <path d="M44 178 L248 51" stroke="url(#loveArrow)" stroke-width="6" stroke-linecap="round"/><path d="M239 48 L269 38 L258 67Z" fill="#f5d27b" stroke="#fff0bf" stroke-width="2"/><path d="M49 175 L30 166 L37 187Z" fill="#f5d27b" stroke="#fff0bf" stroke-width="2"/><path d="M56 170 L44 154 L66 160Z M54 172 L33 177 L43 190Z" fill="#f5d27b"/>
+        <path d="M211 153 C193 132 165 139 165 160 C165 177 188 191 211 207 C234 191 257 177 257 160 C257 139 229 132 211 153Z" fill="#cf315d" stroke="#ffd9e2" stroke-width="3"/>
+        <path d="M190 153 Q198 145 205 154" fill="none" stroke="#fff0f4" stroke-width="4" stroke-linecap="round"/>
+      </svg>
     </div>
   </div>
   <div class="wrap">
@@ -2744,9 +2782,9 @@ loadProducts();
   if(!root) return;
   const params = new URLSearchParams(window.location.search);
   const requestedPreview = (params.get('theme') || '').toLowerCase();
-  const previewEnabled = params.get('themePreview') === '1' || ['live','dussehra','diwali','christmas','pongal'].includes(requestedPreview);
+  const previewEnabled = params.get('themePreview') === '1' || ['live','dussehra','diwali','christmas','pongal','valentine'].includes(requestedPreview);
   const month = new Date().getMonth(); // 0 = January
-  const sceneClassByMonth = {0:'festival-pongal',9:'festival-dussehra',10:'festival-diwali',11:'festival-christmas'};
+  const sceneClassByMonth = {0:'festival-pongal',1:'festival-valentine',9:'festival-dussehra',10:'festival-diwali',11:'festival-christmas'};
   const themes = {
     0: { icon:'🌼', badge:'Makar Sankranti • Pongal Edit', eyebrow:'Start the year in festive style', title:'New beginnings,<br><em>beautifully adorned.</em>', note:'Celebrate Makar Sankranti and Pongal with warm golden accents, joyful details and jewellery made for new beginnings.', accent:'#E8C15A' },
     1: { icon:'💖', badge:'February Edit', eyebrow:'Love, sparkle & everyday style', title:'A little more sparkle,<br><em>a lot more you.</em>', note:'A romantic jewellery edit for gifting, date nights and everyday moments worth celebrating.', accent:'#E9A7B2' },
@@ -2766,9 +2804,10 @@ loadProducts();
     dussehra: {label:'Navratri / Dussehra', month:9, cls:'festival-dussehra'},
     diwali: {label:'Diwali', month:10, cls:'festival-diwali'},
     christmas: {label:'Christmas', month:11, cls:'festival-christmas'},
-    pongal: {label:'Pongal / Makar Sankranti', month:0, cls:'festival-pongal'}
+    pongal: {label:'Pongal / Makar Sankranti', month:0, cls:'festival-pongal'},
+    valentine: {label:'Valentine’s Day', month:1, cls:'festival-valentine'}
   };
-  const themeClasses = ['festival-diwali','festival-dussehra','festival-christmas','festival-pongal'];
+  const themeClasses = ['festival-diwali','festival-dussehra','festival-christmas','festival-pongal','festival-valentine'];
   const setText = (id, value) => { const el = document.getElementById(id); if(el) el.innerHTML = value; };
   function applyTheme(key){
     const choice = previewMap[key] || previewMap.live;
