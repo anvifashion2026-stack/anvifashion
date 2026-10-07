@@ -2670,15 +2670,15 @@ loadProducts();
 })();
 
 
-/* -------- Indian festival landing-page theme -------- */
+/* -------- Indian festival landing-page theme + private preview controls -------- */
 (function applyIndianFestivalTheme(){
   const root = document.querySelector('[data-festival-theme]');
   if(!root) return;
-
+  const params = new URLSearchParams(window.location.search);
+  const requestedPreview = (params.get('theme') || '').toLowerCase();
+  const previewEnabled = params.get('themePreview') === '1' || ['live','dussehra','diwali','christmas','pongal'].includes(requestedPreview);
   const month = new Date().getMonth(); // 0 = January
   const sceneClassByMonth = {0:'festival-pongal',9:'festival-dussehra',10:'festival-diwali',11:'festival-christmas'};
-  const sceneClass = sceneClassByMonth[month];
-  if(sceneClass) root.classList.add(sceneClass);
   const themes = {
     0: { icon:'🌼', badge:'Makar Sankranti • Pongal Edit', eyebrow:'Start the year in festive style', title:'New beginnings,<br><em>beautifully adorned.</em>', note:'Celebrate Makar Sankranti and Pongal with warm golden accents, joyful details and jewellery made for new beginnings.', accent:'#E8C15A' },
     1: { icon:'💖', badge:'February Edit', eyebrow:'Love, sparkle & everyday style', title:'A little more sparkle,<br><em>a lot more you.</em>', note:'A romantic jewellery edit for gifting, date nights and everyday moments worth celebrating.', accent:'#E9A7B2' },
@@ -2693,17 +2693,52 @@ loadProducts();
     10:{ icon:'🪔', badge:'Diwali Edit', eyebrow:'Light up your festive look', title:'Diwali sparkle,<br><em>the ANVI way.</em>', note:'Celebrate the festival of lights with golden glow, statement details and jewellery made for festive nights.', accent:'#F2C65D' },
     11:{ icon:'🎄', badge:'Christmas Edit', eyebrow:'Merry sparkle season', title:'Christmas sparkle,<br><em>made beautifully.</em>', note:'Add a touch of festive glamour to parties, gifting and year-end celebrations with ANVI.', accent:'#DDBB7B' }
   };
-
-  // Fallback to the current month entry; themes are driven by the visitor's local system date.
-  const theme = themes[month] || themes[0];
-  root.style.setProperty('--festival-accent', theme.accent);
-  root.style.setProperty('--festival-glow', 'rgba(217,191,148,.24)');
+  const previewMap = {
+    live: {label:'Live date (automatic)', month:null, cls:null},
+    dussehra: {label:'Navratri / Dussehra', month:9, cls:'festival-dussehra'},
+    diwali: {label:'Diwali', month:10, cls:'festival-diwali'},
+    christmas: {label:'Christmas', month:11, cls:'festival-christmas'},
+    pongal: {label:'Pongal / Makar Sankranti', month:0, cls:'festival-pongal'}
+  };
+  const themeClasses = ['festival-diwali','festival-dussehra','festival-christmas','festival-pongal'];
   const setText = (id, value) => { const el = document.getElementById(id); if(el) el.innerHTML = value; };
-  setText('heroFestivalIcon', theme.icon);
-  setText('heroFestivalText', theme.badge);
-  setText('heroEyebrow', theme.eyebrow);
-  setText('heroTitle', theme.title);
-  setText('heroFestivalNote', theme.note);
+  function applyTheme(key){
+    const choice = previewMap[key] || previewMap.live;
+    themeClasses.forEach(cls => root.classList.remove(cls));
+    const selectedMonth = choice.month === null ? month : choice.month;
+    const cls = choice.month === null ? sceneClassByMonth[month] : choice.cls;
+    if(cls) root.classList.add(cls);
+    const theme = themes[selectedMonth] || themes[0];
+    root.style.setProperty('--festival-accent', theme.accent);
+    root.style.setProperty('--festival-glow', key === 'christmas' ? 'rgba(221,187,123,.24)' : 'rgba(217,191,148,.24)');
+    setText('heroFestivalIcon', theme.icon);
+    setText('heroFestivalText', theme.badge);
+    setText('heroEyebrow', theme.eyebrow);
+    setText('heroTitle', theme.title);
+    setText('heroFestivalNote', theme.note);
+    root.dataset.previewTheme = key;
+    const status = document.getElementById('festivalPreviewStatus');
+    if(status) status.textContent = key === 'live' ? 'Showing the theme selected by today’s date.' : 'Previewing '+choice.label+' — customers see the live-date theme unless they open a preview link.';
+  }
+  const initialKey = previewEnabled && previewMap[requestedPreview] ? requestedPreview : 'live';
+  applyTheme(initialKey);
+
+  // Preview controls only appear when deliberately enabled with ?themePreview=1 or ?theme=diwali.
+  if(previewEnabled){
+    const style = document.createElement('style');
+    style.textContent = `#festivalPreviewPanel{position:fixed;left:12px;bottom:12px;z-index:10020;width:min(310px,calc(100vw - 24px));padding:12px 13px;border:1px solid rgba(224,190,125,.65);border-radius:14px;background:rgba(24,22,25,.94);color:#fff8e9;box-shadow:0 12px 36px rgba(0,0,0,.3);font:13px/1.4 system-ui,-apple-system,sans-serif;backdrop-filter:blur(12px)}#festivalPreviewPanel .fp-title{font-weight:750;font-size:13px;letter-spacing:.02em;margin-bottom:8px}#festivalPreviewPanel .fp-row{display:flex;gap:7px;align-items:center}#festivalPreviewPanel select,#festivalPreviewPanel button{font:inherit;border-radius:9px;border:1px solid rgba(255,255,255,.22);padding:8px;background:#fffaf1;color:#282127;min-width:0}#festivalPreviewPanel select{flex:1;width:100%}#festivalPreviewPanel button{cursor:pointer;font-weight:650}#festivalPreviewPanel .fp-live{white-space:nowrap}#festivalPreviewStatus{display:block;margin-top:7px;color:#e8d8b8;font-size:11px}#festivalPreviewPanel .fp-close{float:right;border:0;background:transparent;color:#fff;padding:0 3px;font-size:18px;line-height:1}`;
+    document.head.appendChild(style);
+    const panel = document.createElement('aside');
+    panel.id = 'festivalPreviewPanel';
+    panel.setAttribute('aria-label','Festival theme preview controls');
+    panel.innerHTML = `<button class="fp-close" type="button" aria-label="Close preview panel" title="Close preview panel">×</button><div class="fp-title">ANVI · Festival Theme Preview</div><div class="fp-row"><select id="festivalPreviewSelect" aria-label="Choose festival theme"><option value="live">Live date (automatic)</option><option value="dussehra">Navratri / Dussehra</option><option value="diwali">Diwali</option><option value="christmas">Christmas</option><option value="pongal">Pongal / Makar Sankranti</option></select><button class="fp-live" id="festivalPreviewLive" type="button">Live</button></div><span id="festivalPreviewStatus" aria-live="polite"></span>`;
+    document.body.appendChild(panel);
+    const select = document.getElementById('festivalPreviewSelect');
+    select.value = initialKey;
+    select.addEventListener('change', () => applyTheme(select.value));
+    document.getElementById('festivalPreviewLive').addEventListener('click', () => { select.value='live'; applyTheme('live'); });
+    panel.querySelector('.fp-close').addEventListener('click', () => panel.remove());
+  }
 })();
 
 /* -------- realistic Diwali / Dussehra particle animation --------
