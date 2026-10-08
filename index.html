@@ -214,7 +214,7 @@ nav.links a:hover::after{width:100%;}
 
 /* -------- premium animated festival scenes -------- */
 .festival-scene{display:none;}
-/* Shri Ram artwork from LottieFiles; playback intentionally disabled for a still look. */
+/* Shri Ram animation loaded from the ANVI Fashion GitHub repository; autoplay and looping enabled. */
 .festival-ram-lottie{position:absolute;right:4%;bottom:3%;z-index:5;width:min(300px,42vw);height:min(300px,42vw);pointer-events:none;background:transparent;}
 .hero.festival-dussehra .festival-ram-lottie{display:block;}
 @media(max-width:600px){.festival-ram-lottie{width:min(190px,48vw);height:min(190px,48vw);right:2%;bottom:2%;}}
@@ -781,8 +781,8 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
       </svg>
     </div>
 
-    <!-- Dussehra: Shri Ram LottieFiles artwork. Autoplay/loop are intentionally omitted. -->
-    <dotlottie-wc class="festival-ram-lottie festival-scene festival-scene-dussehra" src="https://assets-v2.lottiefiles.com/a/911713d2-1166-11ee-9c14-1bec7bf114ca/hhOSLsGdpw.lottie" mode="forward" backgroundcolor="transparent" aria-label="Shri Ram festival artwork"></dotlottie-wc>
+    <!-- Dussehra: Shri Ram animation hosted in ANVI Fashion GitHub. Autoplay and loop enabled. -->
+    <lottie-player class="festival-ram-lottie festival-scene festival-scene-dussehra" src="https://raw.githubusercontent.com/anvifashion2026-stack/anvifashion/main/dussehra.json" background="transparent" speed="1" autoplay loop aria-label="Shri Ram Dussehra animation"></lottie-player>
 
     <!-- High-fidelity particle layer: fireworks + flower-pot fountains + sparklers. -->
     <canvas id="festivalParticles" class="festival-particles festival-scene festival-scene-diwali" aria-hidden="true"></canvas>
@@ -3014,6 +3014,6 @@ loadProducts();
   />
 </a>
 <!-- End ANVI WhatsApp Floating Chat Button -->
-<script src="https://unpkg.com/@lottiefiles/dotlottie-wc@latest/dist/dotlottie-wc.js" type="module"></script>
+<script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
 </body>
 </html>
