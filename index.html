@@ -196,6 +196,9 @@ nav.links a:hover::after{width:100%;}
 .hero.festival-hero::after{width:320px;height:120px;left:-70px;bottom:-65px;border-radius:50%;background:repeating-radial-gradient(ellipse at center,transparent 0 10px,var(--festival-pattern) 11px 12px);transform:rotate(-10deg);}
 .festival-decor{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
 .festival-decor .fest-dot{position:absolute;width:7px;height:7px;border-radius:50%;background:var(--festival-accent);box-shadow:0 0 18px var(--festival-accent);opacity:.85;}
+/* Dussehra: remove the two small sparkle dots above the diya area. */
+.hero.festival-dussehra .festival-decor .fest-dot.d3,
+.hero.festival-dussehra .festival-decor .fest-dot.d4{display:none!important;}
 .festival-decor .d1{top:22%;right:25%;}.festival-decor .d2{top:34%;right:12%;width:4px;height:4px}.festival-decor .d3{bottom:24%;left:42%;width:5px;height:5px}.festival-decor .d4{top:13%;left:34%;width:4px;height:4px}
 .hero-festival{display:inline-flex;align-items:center;gap:8px;margin-bottom:16px;padding:7px 12px;border:1px solid rgba(217,191,148,.42);border-radius:999px;background:rgba(255,255,255,.055);font-family:var(--mono);font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold-light);backdrop-filter:blur(5px);}
 .hero-festival .festival-icon{font-size:16px;line-height:1;}
@@ -217,6 +220,14 @@ nav.links a:hover::after{width:100%;}
 /* Shri Ram animation loaded from the ANVI Fashion GitHub repository; autoplay and looping enabled. */
 .festival-ram-lottie{position:absolute;right:4%;bottom:3%;z-index:5;width:min(300px,42vw);height:min(300px,42vw);pointer-events:none;background:transparent;}
 .hero.festival-dussehra .festival-ram-lottie{display:block;}
+/* Diwali: use only the supplied Lottie-hosted animation; hide all older Diwali decorations. */
+.festival-diwali-embed{position:absolute;right:3%;bottom:2%;z-index:6;width:min(360px,46vw);height:min(360px,46vw);border:0;background:transparent;pointer-events:none;display:none;}
+.hero.festival-diwali .festival-diwali-embed{display:block;}
+.hero.festival-diwali .festival-lamps,
+.hero.festival-diwali #festivalParticles,
+.hero.festival-diwali .festival-ground-glow,
+.hero.festival-diwali .festival-sparklers{display:none!important;}
+@media(max-width:600px){.festival-diwali-embed{width:min(230px,58vw);height:min(230px,58vw);right:1%;bottom:1%;}}
 @media(max-width:600px){.festival-ram-lottie{width:min(190px,48vw);height:min(190px,48vw);right:2%;bottom:2%;}}
 .hero.festival-diwali .festival-scene-diwali,
 .hero.festival-dussehra .festival-scene-dussehra,
@@ -749,7 +760,10 @@ footer{border-top:1px solid var(--line); padding:26px 0; }
   <div class="festival-decor" aria-hidden="true">
     <span class="fest-dot d1"></span><span class="fest-dot d2"></span><span class="fest-dot d3"></span><span class="fest-dot d4"></span>
 
-    <!-- Premium Diya lamps: used for both Navratri/Dussehra and Diwali. -->
+    <!-- Diwali: single supplied Lottie animation. Other Diwali decorations are disabled. -->
+    <iframe class="festival-diwali-embed festival-scene festival-scene-diwali" src="https://lottie.host/embed/4ad2798d-b289-4e37-9243-b9d42c794b29/BmseoV11n8.lottie" title="Diwali festival animation" loading="lazy" allow="autoplay" aria-hidden="true" tabindex="-1"></iframe>
+
+    <!-- Premium Diya lamps: retained for other relevant themes, but hidden during Diwali. -->
     <div class="festival-lamps festival-scene festival-scene-diwali" aria-hidden="true">
       <svg class="festival-diya-svg small" viewBox="0 0 120 96" aria-hidden="true">
         <defs><linearGradient id="brassA" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffe19a"/><stop offset=".35" stop-color="#b97824"/><stop offset=".7" stop-color="#70400f"/><stop offset="1" stop-color="#3a2109"/></linearGradient><radialGradient id="glowA"><stop stop-color="#ffd66b" stop-opacity=".55"/><stop offset="1" stop-color="#ff7a00" stop-opacity="0"/></radialGradient><linearGradient id="flameA" x1="0" y1="1" x2="0" y2="0"><stop stop-color="#fff7bd"/><stop offset=".45" stop-color="#ffc12f"/><stop offset="1" stop-color="#ff5b12" stop-opacity=".2"/></linearGradient></defs>
